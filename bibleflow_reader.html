@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BibleFlow — קורא תנ״ך חכם</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;800;900&family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gold:#E8B84B; --gold-dim:#A9873F;
+    --evening:#6E8CA0; --olive:#6B7A4F;
+    --parch:#F1EBDD; --ink:#12100c; --ink2:#1b1712;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{background:#0d0b08;}
+  body{font-family:'Heebo',sans-serif; color:var(--parch); display:flex; flex-direction:column; align-items:center; padding:24px 10px; gap:12px;}
+  .hint{font-size:11px; color:#999; text-align:center; max-width:420px; line-height:1.7;}
+
+  .device{width:390px; max-width:100%; min-height:812px; position:relative; overflow:hidden; border-radius:22px;
+    background:radial-gradient(120% 100% at 50% 0%, #241d12 0%, #0d0b08 60%); box-shadow:0 10px 30px rgba(0,0,0,0.4);
+    display:flex; flex-direction:column;}
+
+  .fr{display:none; flex-direction:column; flex:1; min-height:812px;}
+  .fr.on{display:flex; animation:fadein .35s ease;}
+  @keyframes fadein{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
+
+  .top{display:flex; align-items:center; justify-content:space-between; padding:22px 24px 0;}
+  .brand{display:flex; align-items:baseline; gap:8px;}
+  .brand-mark{font-family:'Frank Ruhl Libre',serif; font-size:16px; font-weight:800; color:var(--gold); line-height:1;}
+  .brand-name{font-family:'Heebo',sans-serif; font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(241,235,221,0.55);}
+
+  /* ============ SEARCH (home) ============ */
+  #f-search{padding:0 24px 30px; justify-content:flex-start;}
+  .hero-copy{padding:34px 2px 22px;}
+  .hero-title{font-family:'Frank Ruhl Libre',serif; font-size:27px; font-weight:800; line-height:1.25; margin-bottom:10px;}
+  .hero-sub{font-size:13.5px; color:rgba(241,235,221,0.65); line-height:1.6;}
+
+  .search-box{position:relative; margin-bottom:16px;}
+  .search-input{width:100%; background:rgba(241,235,221,0.07); border:1.5px solid rgba(232,184,75,0.35); border-radius:14px;
+    padding:16px 52px 16px 16px; color:var(--parch); font-size:16px; font-family:'Heebo',sans-serif; transition:border-color .2s, box-shadow .2s;}
+  .search-input:focus{outline:none; border-color:var(--gold); box-shadow:0 0 0 4px rgba(232,184,75,0.15);}
+  .search-input::placeholder{color:rgba(241,235,221,0.4);}
+  .search-go{position:absolute; left:8px; top:50%; transform:translateY(-50%); width:38px; height:38px; border-radius:10px;
+    background:var(--gold); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:transform .15s;}
+  .search-go:active{transform:translateY(-50%) scale(0.88);}
+  .search-go svg{width:18px; height:18px;}
+
+  .chip-label{font-size:10.5px; color:rgba(241,235,221,0.45); letter-spacing:1px; text-transform:uppercase; margin:18px 0 10px;}
+  .chips{display:flex; flex-wrap:wrap; gap:8px;}
+  .chip{background:rgba(241,235,221,0.06); border:1px solid rgba(241,235,221,0.18); color:var(--parch); font-size:13px;
+    padding:9px 16px; border-radius:999px; cursor:pointer; transition:transform .15s, background .15s, border-color .15s;}
+  .chip:hover{background:rgba(232,184,75,0.12); border-color:rgba(232,184,75,0.5); transform:translateY(-1px);}
+  .chip:active{transform:scale(0.94);}
+  .chip.resume{background:rgba(232,184,75,0.14); border-color:rgba(232,184,75,0.55); font-weight:600;}
+
+  .footnote{margin-top:auto; padding-top:26px; font-size:11px; color:rgba(241,235,221,0.35); text-align:center; line-height:1.6;}
+
+  /* ============ RESULT ============ */
+  #f-result{padding:0 22px 26px;}
+  .back-link{align-self:flex-start; font-size:13px; color:rgba(241,235,221,0.55); background:none; border:none; cursor:pointer;
+    padding:18px 2px 4px; display:flex; align-items:center; gap:6px;}
+  .back-link:active{opacity:0.6;}
+  .result-ref{font-family:'Frank Ruhl Libre',serif; font-size:24px; font-weight:800; margin:14px 0 4px; color:var(--gold);}
+  .result-sub{font-size:12px; color:rgba(241,235,221,0.5); margin-bottom:18px;}
+
+  .state-msg{padding:60px 10px; text-align:center; font-size:14px; color:rgba(241,235,221,0.6); line-height:1.8;}
+  .pulse-dot{display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--gold); margin-inline-end:8px;
+    animation:pulse 1s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:0.3; transform:scale(0.8);} 50%{opacity:1; transform:scale(1.15);}}
+
+  .verses{display:flex; flex-direction:column; gap:14px; margin-bottom:22px;}
+  .verse{font-family:'Frank Ruhl Libre',serif; font-size:17.5px; line-height:1.9; opacity:0; transform:translateY(6px);
+    animation:vin .5s ease forwards;}
+  .verse .vnum{color:var(--gold-dim); font-family:'Heebo',sans-serif; font-size:11px; font-weight:700; margin-inline-end:8px; vertical-align:middle;}
+  @keyframes vin{to{opacity:1; transform:translateY(0);}}
+
+  .listen-bar{position:sticky; bottom:14px; display:flex; align-items:center; gap:12px; background:rgba(20,16,10,0.92);
+    backdrop-filter:blur(6px); border:1px solid rgba(232,184,75,0.3); border-radius:16px; padding:12px 16px; margin-top:6px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.4);}
+  .listen-btn{width:44px; height:44px; border-radius:50%; background:var(--gold); border:none; cursor:pointer; flex:0 0 auto;
+    display:flex; align-items:center; justify-content:center; transition:transform .15s;}
+  .listen-btn:active{transform:scale(0.9);}
+  .listen-btn svg{width:18px; height:18px;}
+  .listen-label{font-size:13px; color:var(--parch);}
+  .listen-bars{display:flex; align-items:center; gap:2.5px; height:16px; margin-inline-start:auto;}
+  .listen-bars span{width:3px; background:var(--gold); border-radius:2px; height:4px; opacity:0.4;}
+  .listen-bars.playing span{animation:bar 0.9s ease-in-out infinite; opacity:1;}
+  .listen-bars span:nth-child(1){animation-delay:0s;}
+  .listen-bars span:nth-child(2){animation-delay:.15s;}
+  .listen-bars span:nth-child(3){animation-delay:.3s;}
+  .listen-bars span:nth-child(4){animation-delay:.45s;}
+  @keyframes bar{0%,100%{height:4px;} 50%{height:16px;}}
+
+  .ai-row{display:flex; flex-direction:column; gap:10px; margin-top:18px;}
+  .ai-card{position:relative; border:1px dashed rgba(241,235,221,0.25); border-radius:12px; padding:14px 16px; overflow:hidden;}
+  .ai-card-title{font-size:13.5px; font-weight:700; color:rgba(241,235,221,0.75); margin-bottom:4px; display:flex; align-items:center; gap:8px;}
+  .ai-card-sub{font-size:11.5px; color:rgba(241,235,221,0.45); line-height:1.5;}
+  .soon-badge{font-size:9.5px; letter-spacing:0.5px; color:#12100c; background:var(--gold); padding:2px 8px; border-radius:20px; font-weight:700;}
+</style>
+</head>
+<body>
+
+<div class="hint">BibleFlow — קורא תנ״ך חכם: הקלידו כל ספר ופרק, הטקסט מובא בזמן אמת מ-Sefaria + הקראה קולית בדפדפן. שכבות ה-AI (הסבר פשוט / המחשה) מסומנות "בקרוב" בכנות — עדיין אין מפתח AI מחובר לפרויקט.</div>
+
+<div class="device">
+
+  <!-- SEARCH -->
+  <div class="fr on" id="f-search">
+    <div class="top">
+      <div class="brand"><div class="brand-mark">א</div><div class="brand-name">BibleFlow</div></div>
+    </div>
+    <div class="hero-copy">
+      <div class="hero-title">איזה פרק בא לך<br>לגלות היום?</div>
+      <p class="hero-sub">הקלידו ספר ופרק — הטקסט האמיתי עולה מיד, ואפשר גם לשמוע אותו מוקרא.</p>
+    </div>
+    <div class="search-box">
+      <input class="search-input" id="searchInput" type="text" placeholder="למשל: שמואל א פרק יז" onkeydown="if(event.key==='Enter') runSearch()">
+      <button class="search-go" onclick="runSearch()" aria-label="חפש">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#12100c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <div id="resumeChipWrap"></div>
+    <div class="chip-label">או התחילו מכאן</div>
+    <div class="chips">
+      <div class="chip" onclick="quickSearch('בראשית א')">בראשית א׳ — בריאת העולם</div>
+      <div class="chip" onclick="quickSearch('שמות כ')">שמות כ׳ — עשרת הדיברות</div>
+      <div class="chip" onclick="quickSearch('שמואל א יז')">שמואל א יז׳ — דוד וגוליית</div>
+      <div class="chip" onclick="quickSearch('תהילים כג')">תהילים כ״ג</div>
+      <div class="chip" onclick="quickSearch('יונה ב')">יונה ב׳ — במעי הדג</div>
+    </div>
+    <div class="footnote">הטקסט מובא בזמן אמת מתוך ספריית ספריא (Sefaria) — אפשר לחפש כל פרק בתנ״ך.</div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="fr" id="f-result">
+    <button class="back-link" onclick="goHome()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      חיפוש אחר
+    </button>
+    <div id="resultBody"></div>
+  </div>
+
+</div>
+
+<script>
+  /* ===== Hebrew book name → Sefaria API ref slug ===== */
+  const BOOK_MAP = {
+    "בראשית":"Genesis", "שמות":"Exodus", "ויקרא":"Leviticus", "במדבר":"Numbers", "דברים":"Deuteronomy",
+    "יהושע":"Joshua", "שופטים":"Judges",
+    "שמואל א":"I_Samuel", "שמואל ב":"II_Samuel",
+    "מלכים א":"I_Kings", "מלכים ב":"II_Kings",
+    "ישעיהו":"Isaiah", "ירמיהו":"Jeremiah", "יחזקאל":"Ezekiel",
+    "הושע":"Hosea", "יואל":"Joel", "עמוס":"Amos", "עובדיה":"Obadiah", "יונה":"Jonah",
+    "מיכה":"Micah", "נחום":"Nahum", "חבקוק":"Habakkuk", "צפניה":"Zephaniah",
+    "חגי":"Haggai", "זכריה":"Zechariah", "מלאכי":"Malachi",
+    "תהילים":"Psalms", "תהלים":"Psalms", "משלי":"Proverbs", "איוב":"Job",
+    "שיר השירים":"Song_of_Songs", "רות":"Ruth", "איכה":"Lamentations", "קהלת":"Ecclesiastes",
+    "אסתר":"Esther", "דניאל":"Daniel", "עזרא":"Ezra", "נחמיה":"Nehemiah",
+    "דברי הימים א":"I_Chronicles", "דברי הימים ב":"II_Chronicles"
+  };
+
+  const GEMATRIA = {"א":1,"ב":2,"ג":3,"ד":4,"ה":5,"ו":6,"ז":7,"ח":8,"ט":9,"י":10,"כ":20,"ל":30,"מ":40,"נ":50,"ס":60,"ע":70,"פ":80,"צ":90,"ק":100,"ר":200,"ש":300,"ת":400};
+
+  function normalize(str){
+    return str.replace(/[״"׳']/g,'').replace(/\s+/g,' ').trim();
+  }
+
+  function parseChapterToken(token){
+    if(/^\d+$/.test(token)) return parseInt(token,10);
+    let sum = 0;
+    for(const ch of token){ if(GEMATRIA[ch]) sum += GEMATRIA[ch]; }
+    return sum || null;
+  }
+
+  function parseQuery(raw){
+    let s = normalize(raw).replace(/פרק/g,' ').replace(/\s+/g,' ').trim();
+    const parts = s.split(' ');
+    if(parts.length < 2) return null;
+    const chapterToken = parts[parts.length - 1];
+    const chapter = parseChapterToken(chapterToken);
+    const bookHe = parts.slice(0, -1).join(' ');
+    const bookSlug = BOOK_MAP[bookHe];
+    if(!bookSlug || !chapter) return null;
+    return { bookHe, bookSlug, chapter };
+  }
+
+  function stripHtml(html){
+    return html.replace(/<[^>]*>/g,'').replace(/&nbsp;/g,' ').trim();
+  }
+
+  function goTo(t){
+    document.querySelectorAll('.fr').forEach(f=>f.classList.remove('on'));
+    document.getElementById('f-' + t).classList.add('on');
+  }
+  function goHome(){
+    window.speechSynthesis && window.speechSynthesis.cancel();
+    goTo('search');
+    renderResumeChip();
+  }
+
+  function quickSearch(text){
+    document.getElementById('searchInput').value = text;
+    runSearch();
+  }
+
+  async function runSearch(){
+    const raw = document.getElementById('searchInput').value;
+    if(!raw.trim()) return;
+    const parsed = parseQuery(raw);
+    goTo('result');
+    const body = document.getElementById('resultBody');
+    if(!parsed){
+      body.innerHTML = '<div class="state-msg">לא זיהינו את הפרק הזה 🙁<br>נסו לכתוב בפורמט: <b>שם הספר</b> ואז <b>מספר הפרק</b><br>לדוגמה: "שמואל א יז" או "בראשית א"</div>';
+      return;
+    }
+    body.innerHTML = '<div class="state-msg"><span class="pulse-dot"></span>מחפש בתנ״ך...</div>';
+    try{
+      const url = `https://www.sefaria.org/api/texts/${parsed.bookSlug}.${parsed.chapter}?lang=he&context=0`;
+      const res = await fetch(url);
+      if(!res.ok) throw new Error('not found');
+      const data = await res.json();
+      const verses = (data.he || []).map(v => Array.isArray(v) ? v.join(' ') : v).filter(Boolean);
+      if(!verses.length) throw new Error('empty');
+      renderResult(parsed, data, verses);
+      saveLastSearch(parsed, data);
+    }catch(e){
+      body.innerHTML = '<div class="state-msg">לא הצלחנו למצוא את הפרק הזה כרגע 🙁<br>ודאו שמספר הפרק קיים בספר הזה ונסו שוב.</div>';
+    }
+  }
+
+  let currentVerses = [];
+  function renderResult(parsed, data, verses){
+    currentVerses = verses;
+    const heRef = data.heRef || (parsed.bookHe + ' ' + parsed.chapter);
+    const body = document.getElementById('resultBody');
+    body.innerHTML = `
+      <div class="result-ref">${heRef}</div>
+      <div class="result-sub">${verses.length} פסוקים · מתוך ספריא</div>
+      <div class="verses" id="versesWrap"></div>
+      <div class="listen-bar">
+        <button class="listen-btn" id="listenBtn" onclick="toggleListen()">${playIcon()}</button>
+        <span class="listen-label" id="listenLabel">הקשיבו לפרק</span>
+        <div class="listen-bars" id="listenBars"><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="ai-row">
+        <div class="ai-card">
+          <div class="ai-card-title">הסבר בשפה פשוטה <span class="soon-badge">בקרוב</span></div>
+          <div class="ai-card-sub">כשיחובר מפתח AI, כאן יופיע הסבר של הפרק בשפה יומיומית, לא תנ״כית.</div>
+        </div>
+        <div class="ai-card">
+          <div class="ai-card-title">המחשה חזותית <span class="soon-badge">בקרוב</span></div>
+          <div class="ai-card-sub">כשיחובר מפתח AI, כאן תופיע תמונה שממחישה את הרגע המרכזי בפרק.</div>
+        </div>
+      </div>
+    `;
+    const wrap = document.getElementById('versesWrap');
+    verses.forEach((v, i) => {
+      const el = document.createElement('div');
+      el.className = 'verse';
+      el.style.animationDelay = (i * 0.06) + 's';
+      el.innerHTML = `<span class="vnum">${i+1}</span>${stripHtml(v)}`;
+      wrap.appendChild(el);
+    });
+  }
+
+  function playIcon(){
+    return '<svg viewBox="0 0 24 24" fill="none"><path d="M8 5v14l11-7L8 5z" fill="#12100c"/></svg>';
+  }
+  function pauseIcon(){
+    return '<svg viewBox="0 0 24 24" fill="none"><rect x="6" y="5" width="4" height="14" fill="#12100c"/><rect x="14" y="5" width="4" height="14" fill="#12100c"/></svg>';
+  }
+
+  let isReading = false;
+  let heVoice = null;
+  let voicesReady = false;
+
+  function pickHebrewVoice(){
+    const voices = window.speechSynthesis.getVoices();
+    if(!voices.length) return null;
+    // Prefer an explicit he-IL/he_IL voice; fall back to anything tagged Hebrew.
+    const exact = voices.find(v => /^he[-_]il$/i.test(v.lang));
+    if(exact) return exact;
+    const heLang = voices.find(v => /^he/i.test(v.lang));
+    if(heLang) return heLang;
+    const byName = voices.find(v => /hebrew|עברית/i.test(v.name));
+    return byName || null;
+  }
+  if('speechSynthesis' in window){
+    heVoice = pickHebrewVoice();
+    window.speechSynthesis.onvoiceschanged = () => { heVoice = pickHebrewVoice(); voicesReady = true; };
+  }
+
+  // Strip cantillation marks (trope, U+0591–U+05AF) which confuse most TTS
+  // engines, while keeping nikud (vowel points, U+05B0–U+05C7) — nikud is
+  // what makes biblical Hebrew pronounceable correctly at all.
+  function cleanForSpeech(str){
+    return str.replace(/[֑-֯]/g, '').replace(/[־׀]/g, ' ').replace(/\s+/g,' ').trim();
+  }
+
+  let speakQueue = [];
+  let speakIndex = 0;
+
+  function speakNext(){
+    if(speakIndex >= speakQueue.length){
+      finishReading();
+      return;
+    }
+    const utter = new SpeechSynthesisUtterance(speakQueue[speakIndex]);
+    utter.lang = 'he-IL';
+    if(heVoice) utter.voice = heVoice;
+    utter.rate = 0.85;
+    utter.pitch = 1;
+    utter.onend = () => { speakIndex++; speakNext(); };
+    utter.onerror = () => { speakIndex++; speakNext(); };
+    window.speechSynthesis.speak(utter);
+  }
+
+  function finishReading(){
+    isReading = false;
+    document.getElementById('listenBtn').innerHTML = playIcon();
+    document.getElementById('listenLabel').textContent = 'הקשיבו לפרק';
+    document.getElementById('listenBars').classList.remove('playing');
+  }
+
+  function toggleListen(){
+    if(!('speechSynthesis' in window)){ alert('הדפדפן הזה לא תומך בהקראה קולית'); return; }
+    const btn = document.getElementById('listenBtn');
+    const label = document.getElementById('listenLabel');
+    const bars = document.getElementById('listenBars');
+    if(isReading){
+      window.speechSynthesis.cancel();
+      finishReading();
+      return;
+    }
+    if(!heVoice) heVoice = pickHebrewVoice();
+    speakQueue = currentVerses.map(v => cleanForSpeech(stripHtml(v))).filter(Boolean);
+    speakIndex = 0;
+    window.speechSynthesis.cancel();
+    speakNext();
+    isReading = true;
+    btn.innerHTML = pauseIcon();
+    label.textContent = heVoice ? 'מקריא כעת...' : 'מקריא (קול עברי לא נמצא, איכות תלויה בדפדפן)...';
+    bars.classList.add('playing');
+  }
+
+  function saveLastSearch(parsed, data){
+    localStorage.setItem('bf_last_search', JSON.stringify({
+      raw: parsed.bookHe + ' ' + parsed.chapter,
+      heRef: data.heRef || (parsed.bookHe + ' ' + parsed.chapter)
+    }));
+  }
+  function renderResumeChip(){
+    const wrap = document.getElementById('resumeChipWrap');
+    const saved = localStorage.getItem('bf_last_search');
+    if(!saved){ wrap.innerHTML = ''; return; }
+    try{
+      const s = JSON.parse(saved);
+      wrap.innerHTML = `<div class="chips" style="margin-bottom:4px;"><div class="chip resume" onclick="quickSearch('${s.raw}')">↻ המשך מ: ${s.heRef}</div></div>`;
+    }catch(e){ wrap.innerHTML = ''; }
+  }
+
+  renderResumeChip();
+</script>
+
+</body>
+</html>
