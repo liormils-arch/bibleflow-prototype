@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BibleFlow — Cinematic Key Art</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;800&family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gold:#C9A45C; --gold-dim:#A9873F;
+    --evening:#6E8CA0; --olive:#6B7A4F;
+    --parch:#F1EBDD; --ink:#2E241A; --ink-dim:#5C5142;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{background:#1a1712;}
+  body{font-family:'Heebo',sans-serif; color:var(--parch); display:flex; flex-direction:column; align-items:center; padding:24px 10px; gap:12px;}
+  .hint{font-size:11px; color:#999; text-align:center; max-width:420px; line-height:1.7;}
+  .cuts{display:flex; gap:4px; flex-wrap:wrap; justify-content:center; max-width:420px;}
+  .cut{font-size:11px; color:#999; background:#fff; border:1px solid #ddd; padding:6px 12px; border-radius:10px; cursor:pointer;}
+  .cut.on{background:var(--gold); color:#fff; border-color:var(--gold);}
+
+  .device{width:390px; max-width:100%; height:812px; position:relative; overflow:hidden; border-radius:22px; background:#111; box-shadow:0 10px 30px rgba(0,0,0,0.3);}
+  .fr{position:absolute; inset:0; display:none; flex-direction:column;}
+  .fr.on{display:flex;}
+
+  .keyart{position:absolute; inset:0; overflow:hidden;}
+  .keyart img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation:kb 30s ease-in-out infinite alternate;}
+  @keyframes kb{ from{transform:scale(1.0);} to{transform:scale(1.08);} }
+  .scrim-b{position:absolute; inset:0; background:linear-gradient(0deg, rgba(10,8,5,0.92) 0%, rgba(10,8,5,0.35) 42%, transparent 68%); pointer-events:none;}
+  .scrim-t{position:absolute; inset:0; background:linear-gradient(180deg, rgba(10,8,5,0.5) 0%, transparent 30%); pointer-events:none;}
+  .scrim-full{position:absolute; inset:0; background:linear-gradient(180deg, rgba(10,8,5,0.35) 0%, rgba(10,8,5,0.15) 35%, rgba(10,8,5,0.75) 100%); pointer-events:none;}
+
+  .fadein{opacity:0; animation:fadeIn .9s ease forwards;}
+  @keyframes fadeIn{ to{opacity:1;} }
+
+  .advance-cue{position:absolute; bottom:20px; left:0; right:0; z-index:6; display:flex; flex-direction:column; align-items:center; gap:7px; pointer-events:none;}
+  .advance-cue .chev{width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-top:8px solid var(--gold); animation:chevpulse 1.8s ease infinite;}
+  .advance-cue .lbl{font-size:12px; color:rgba(241,235,221,0.75); font-weight:500;}
+  @keyframes chevpulse{ 0%,100%{opacity:0.45; transform:translateY(0);} 50%{opacity:0.9; transform:translateY(4px);} }
+
+  /* HOME — header is a transparent info layer fused into the image, not a bar */
+  #f-home .top{display:flex; align-items:center; justify-content:space-between; padding:22px 24px 0; position:relative; z-index:6;}
+  .brand{display:flex; align-items:baseline; gap:8px;}
+  .brand-mark{font-family:'Frank Ruhl Libre',serif; font-size:15px; font-weight:800; color:var(--parch); opacity:0.5; text-shadow:0 1px 6px rgba(0,0,0,0.5); line-height:1;}
+  .brand-text{display:flex; flex-direction:column; gap:1px;}
+  .brand-name{font-family:'Heebo',sans-serif; font-size:9.5px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:rgba(241,235,221,0.5); text-shadow:0 1px 6px rgba(0,0,0,0.5);}
+  .brand-episode{font-family:'Frank Ruhl Libre',serif; font-style:italic; font-size:11.5px; font-weight:500; letter-spacing:0.2px; color:rgba(241,235,221,0.68); text-shadow:0 1px 6px rgba(0,0,0,0.5);}
+  .avatar{width:24px;height:24px;border-radius:50%; background:linear-gradient(155deg,var(--gold),var(--olive)); display:flex; align-items:center; justify-content:center; opacity:0.75;}
+  .avatar-initial{font-family:'Frank Ruhl Libre',serif; font-size:10.5px; font-weight:700; color:#1a1712;}
+  .home-text{position:absolute; z-index:6; bottom:38px; left:26px; right:26px;}
+  .home-title{font-family:'Frank Ruhl Libre',serif; font-size:32px; font-weight:800; letter-spacing:0.2px; margin-bottom:12px; text-shadow:0 2px 18px rgba(0,0,0,0.6);}
+  .home-sub{font-size:14.5px; color:rgba(241,235,221,0.82); line-height:1.6; margin-bottom:22px; text-shadow:0 1px 10px rgba(0,0,0,0.5);}
+  .btn-big{background:var(--gold); color:#231a0c; font-weight:700; font-size:15.5px; letter-spacing:0.3px; padding:15px 20px; border-radius:8px; border:none; width:100%; cursor:pointer; box-shadow:0 8px 20px rgba(0,0,0,0.35); transition:transform .2s ease;}
+  .btn-big:active{transform:scale(0.98);}
+
+  /* STORY */
+  .story-scene{flex:1; position:relative; display:flex; flex-direction:column; justify-content:flex-end; padding:0 26px 96px; cursor:pointer;}
+  .story-caption{position:relative; z-index:6; font-size:15.5px; line-height:1.75; color:var(--parch); letter-spacing:0.1px; text-align:center; text-shadow:0 1px 12px rgba(0,0,0,0.6);}
+
+  /* SCRIPTURE */
+  #f-scripture .frscene{flex:1; position:relative; display:flex; align-items:center; justify-content:center; cursor:pointer;}
+  .verse-open{position:relative; z-index:6; text-align:center; padding:0 30px; max-width:320px;}
+  .verse-open .verse-text{font-family:'Frank Ruhl Libre',serif; font-size:22px; line-height:2.1; color:var(--parch); text-shadow:0 1px 14px rgba(0,0,0,0.6);}
+  .glow-word{color:#fff; font-weight:700; cursor:pointer; padding:2px 10px; border-radius:6px; background:rgba(201,164,92,0.28); box-shadow:0 0 0 1px rgba(201,164,92,0.5), 0 0 14px rgba(201,164,92,0.3); animation:goldpulse 2.6s ease infinite;}
+  @keyframes goldpulse{ 0%,100%{box-shadow:0 0 0 1px rgba(201,164,92,0.4), 0 0 8px rgba(201,164,92,0.2);} 50%{box-shadow:0 0 0 1px rgba(201,164,92,0.65), 0 0 20px rgba(201,164,92,0.4);} }
+  .discover-line{margin-top:18px; font-size:13px; line-height:1.75; color:var(--evening); max-height:0; opacity:0; overflow:hidden; transition:max-height .5s ease, opacity .5s ease; text-shadow:0 1px 8px rgba(0,0,0,0.65);}
+  .discover-line.open{max-height:120px; opacity:1;}
+
+  /* READING */
+  #f-reading .frscene{flex:1; position:relative; display:flex; align-items:center; justify-content:center; cursor:pointer;}
+  .read-open{position:relative; z-index:6; text-align:center; padding:0 32px;}
+  .read-open .verse-text{font-family:'Frank Ruhl Libre',serif; font-size:21px; line-height:1.95; color:var(--parch); margin-bottom:24px; text-shadow:0 1px 14px rgba(0,0,0,0.6);}
+  .btn-listen{background:rgba(241,235,221,0.08); color:var(--parch); font-weight:700; font-size:13px; letter-spacing:0.3px; padding:10px 22px; border-radius:8px; border:1.5px solid rgba(241,235,221,0.5); cursor:pointer; transition:background .25s ease, transform .2s ease;}
+  .btn-listen:active{transform:scale(0.98); background:rgba(241,235,221,0.18);}
+
+  /* CHOICE — three real cinematic frames, no icons, no colored blocks */
+  #f-choice{padding:22px 18px; justify-content:center;}
+  .choice-q{font-family:'Frank Ruhl Libre',serif; font-size:16px; font-weight:700; text-align:center; margin-bottom:14px; color:var(--parch);}
+  .choice-row{display:flex; gap:6px;}
+  .moment{flex:1; height:242px; position:relative; overflow:hidden; cursor:pointer; transition:transform .5s cubic-bezier(.25,.8,.25,1), opacity .5s ease, filter .5s ease;}
+  .moment img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
+  .moment .m-cap{position:absolute; z-index:4; bottom:10px; left:6px; right:6px; font-size:12.5px; font-weight:600; line-height:1.4; text-align:center; color:var(--parch); text-shadow:0 1px 6px rgba(0,0,0,0.75);}
+  .moment.dim{opacity:0.42; filter:saturate(0.55) brightness(0.85);}
+  .moment.chosen{transform:scale(1.07); z-index:2;}
+
+  /* ENDING */
+  #f-ending{align-items:center; justify-content:flex-end; text-align:center; padding:0 28px 40px;}
+  .end-line{position:relative; z-index:6; font-size:15px; color:var(--parch); margin-bottom:16px; text-shadow:0 1px 12px rgba(0,0,0,0.6);}
+  .next-label{position:relative; z-index:6; font-size:11.5px; color:rgba(241,235,221,0.7); margin-bottom:6px;}
+  .next-title{position:relative; z-index:6; font-family:'Frank Ruhl Libre',serif; font-weight:800; font-size:19px; margin-bottom:6px; text-shadow:0 1px 12px rgba(0,0,0,0.6);}
+  .next-sub{position:relative; z-index:6; font-size:13px; color:rgba(241,235,221,0.8); line-height:1.5;}
+  .back-home-link{position:relative; z-index:6; display:inline-block; margin-top:22px; font-size:12px; color:rgba(241,235,221,0.55); text-decoration:none; letter-spacing:0.3px; border-bottom:1px solid rgba(241,235,221,0.3); padding-bottom:2px;}
+
+  /* ---- testing harness only (outside the phone — not part of the product UI) ---- */
+  .tester{width:390px; max-width:100%; font-size:11px; color:#ccc; background:#0d0d0d; border:1px solid #2a2a2a; border-radius:10px; padding:10px 12px;}
+  .tester .row1{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;}
+  .tester .now{color:#fff; font-weight:700;}
+  .restart-btn{background:#2a2a2a; color:#ddd; border:1px solid #444; border-radius:6px; padding:4px 10px; font-size:11px; cursor:pointer;}
+  .restart-btn:hover{background:#3a3a3a;}
+  .tester .log{max-height:120px; overflow-y:auto; font-family:monospace; font-size:10.5px; line-height:1.6; color:#999; border-top:1px solid #2a2a2a; padding-top:6px;}
+  .tester .log .stuck{color:#e08a8a;}
+</style>
+</head>
+<body>
+<!--
+  ============================================================
+  BIBLEFLOW VISUAL IDENTITY LOCK — read before touching any image slot.
+  UX, layout, overlays, and navigation below are LOCKED. Only image sources
+  and these comments may change from here forward.
+
+  NOT: Bible illustration app / children's book / religious poster / cartoon /
+       fantasy game / school learning interface.
+  IS:  a premium interactive historical story experience for ages 12-14.
+       Reference feeling: Netflix historical drama, Apple TV+ premium
+       storytelling, high-end animated feature background art.
+  The student should feel "I entered David's world," not "I opened a
+  learning app."
+
+  CHARACTER DIRECTION — applies to every image where David appears:
+  David is NOT a superhero. He is approximately 13-15 years old, an ordinary
+  shepherd, vulnerable but determined, real human proportions, historically
+  accurate Iron Age clothing. NEVER a muscular hero body, warrior pose,
+  fantasy armor, perfect Hollywood face, or triumphant superhero composition.
+  The emotional contrast is: small + vulnerable + courageous. His power comes
+  from his decision, not his appearance.
+
+  Full prompts for every slot: BibleFlow_AI_Key_Art_Generation_Brief.md
+
+  CURRENT PHASE: student-testing prototype. Images below are free/licensed
+  real photography (Wikimedia Commons), chosen only for consistent mood and
+  legibility — not final Key Art. Do not invest in generating a full
+  8-image AI art set yet; validate demand with real students first. Every
+  image slot is a plain <img src> swap, so real commissioned Key Art can
+  replace these later with zero UI changes.
+  ============================================================
+-->
+
+<div class="hint">שלב בדיקת מוצר: נכסים חופשיים בלבד (Wikimedia Commons), כולל תצלום אמיתי של עמק האלה. מטרת השלב הזה היא לבדוק ביקוש והבנה מול תלמידים — לא להפיק Key Art סופי. פרק אחד בלבד: שמואל א׳ פרק י״ז.</div>
+
+<div class="cuts">
+  <div class="cut on" data-t="home">בית</div>
+  <div class="cut" data-t="story">סיפור</div>
+  <div class="cut" data-t="scripture">כתוב</div>
+  <div class="cut" data-t="reading">קריאה</div>
+  <div class="cut" data-t="choice">בחירה</div>
+  <div class="cut" data-t="ending">סיום</div>
+</div>
+
+<div class="tester">
+  <div class="row1"><span>מסך נוכחי: <span class="now" id="nowScreen">home</span> · <span id="nowTimer">0.0s</span></span><button class="restart-btn" onclick="restartTest()">↺ התחל מחדש</button></div>
+  <div class="log" id="testerLog"></div>
+</div>
+
+<div class="device">
+
+  <!-- HOME -->
+  <div class="fr on" id="f-home">
+    <!-- HOME HERO  [PLACEHOLDER — public-domain painting stand-in, needs real Key Art]
+         Purpose: establishing shot, the world before any character focus
+         Emotion: curiosity and scale
+         Composition: small David, enormous valley, distant army barely visible, golden hour
+         Avoid: heroic pose, fantasy style, muscular body, perfect Hollywood face -->
+    <div class="keyart">
+      <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Israel-04674%20-%20Elah%20Valley%20%2833507971512%29.jpg?width=900" alt="David the shepherd, concept-art placeholder for Home">
+      <div class="scrim-t"></div>
+      <div class="scrim-b"></div>
+    </div>
+    <div class="top">
+      <div class="brand">
+        <div class="brand-mark">א</div>
+        <div class="brand-text">
+          <div class="brand-name">BibleFlow</div>
+          <div class="brand-episode">שמואל א׳ · פרק י״ז</div>
+        </div>
+      </div>
+      <div class="avatar"><span class="avatar-initial">נ</span></div>
+    </div>
+    <div class="home-text">
+      <div class="home-title">דוד וגוליית</div>
+      <p class="home-sub">כולם פחדו מהענק. דוד ראה משהו אחר.</p>
+      <button class="btn-big" onclick="goTo('story')">התחל</button>
+    </div>
+  </div>
+
+  <!-- STORY -->
+  <div class="fr" id="f-story">
+    <div class="story-scene" onclick="storyTap()">
+      <!-- STORY — BEAT 1: David arrives at the camp  [PLACEHOLDER, needs real Key Art]
+           Purpose: David enters a world built for adults and soldiers, not for him
+           Emotion: smallness, being an outsider
+           Composition: David dwarfed by tents/armed men, shallow depth of field keeps him sharp
+           Avoid: heroic pose, warrior stance, fantasy armor
+           (Beats 2 and 3's notes are above the `beats` array in the script below —
+           src is swapped per beat by setStoryArt().) -->
+      <div class="keyart" id="storyArt">
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Judean-desert-wadi-perazim-c.JPG?width=900" alt="David enters the camp, concept-art placeholder">
+        <div class="scrim-b"></div>
+      </div>
+      <p class="story-caption fadein" id="storyLine">דוד הגיע למחנה. הוא שמע את קולו של הענק.</p>
+      <div class="advance-cue"><div class="chev"></div><div class="lbl">געו בכל מקום כדי להמשיך</div></div>
+    </div>
+  </div>
+
+  <!-- SCRIPTURE -->
+  <div class="fr" id="f-scripture">
+    <!-- SCRIPTURE BACKGROUND  [PLACEHOLDER, needs real Key Art]
+         Purpose: a calm world behind the sacred verse text
+         Emotion: reverence, stillness
+         Composition: wide desert-valley, golden hour, soft haze, no figures at all
+         Avoid: any focal subject or character — must stay quiet so the text is the only thing that matters -->
+    <div class="frscene" onclick="goTo('reading')">
+      <div class="keyart">
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Desert%20textures%20at%20golden%20hour%20%2851005202791%29.jpg?width=900" alt="desert golden hour">
+        <div class="scrim-full"></div>
+      </div>
+      <div class="verse-open fadein">
+        <div class="verse-text">
+          אַתָּה בָּא אֵלַי בְּחֶרֶב וּבַחֲנִית וּבְכִידוֹן וְאָנֹכִי בָא־אֵלֶיךָ בְּ<span class="glow-word" onclick="toggleDiscover(event)">שֵׁם ה׳</span>
+        </div>
+        <div class="discover-line" id="discoverLine">שֵׁם ה׳ = דוד מבטא אמונה, לא כוח פיזי.</div>
+      </div>
+      <div class="advance-cue"><div class="chev"></div><div class="lbl">געו כדי להמשיך</div></div>
+    </div>
+  </div>
+
+  <!-- READING -->
+  <div class="fr" id="f-reading">
+    <!-- READING BACKGROUND  [PLACEHOLDER, needs real Key Art]
+         Purpose: a quiet moment of contact with the original words
+         Emotion: intimacy, stillness
+         Composition: same register as Scripture, figure-free, dusk-leaning and slightly darker
+         Avoid: any subject competing with the verse text, any bright or busy composition -->
+    <div class="frscene" onclick="goTo('choice')">
+      <div class="keyart">
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Israel-04674%20-%20Elah%20Valley%20%2833507971512%29.jpg?width=900" alt="valley">
+        <div class="scrim-full"></div>
+      </div>
+      <div class="read-open fadein">
+        <div class="verse-text">וַיֹּאמֶר דָּוִד אֶל־הַפְּלִשְׁתִּי</div>
+        <button class="btn-listen" onclick="event.stopPropagation()">האזינו</button>
+      </div>
+      <div class="advance-cue"><div class="chev"></div><div class="lbl">געו כדי להמשיך</div></div>
+    </div>
+  </div>
+
+  <!-- CHOICE -->
+  <div class="fr" id="f-choice">
+    <div class="choice-q">מה דוד רואה ברגע הזה?</div>
+    <div class="choice-row">
+      <!-- CHOICE 1 — the challenge looks impossible  [PLACEHOLDER, needs real Key Art]
+           Purpose: show the scale gap between David and Goliath
+           Emotion: the enormity of the challenge
+           Composition: small David at the valley's edge, towering armored figure barely visible far
+                        across it, the valley itself dominates the frame
+           Avoid: heroic pose, fantasy armor, muscular body, perfect Hollywood face —
+                  David is 13-15, ordinary, vulnerable but determined -->
+      <div class="moment" onclick="pickMoment(this)">
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Judean-desert-wadi-perazim-c.JPG?width=500" alt="the impossible challenge — scale placeholder">
+        <div class="scrim-b"></div>
+        <div class="m-cap">האתגר נראה בלתי אפשרי</div>
+      </div>
+      <!-- CHOICE 2 — everyone is afraid, he isn't  [PLACEHOLDER, needs real Key Art]
+           Purpose: courage through contrast
+           Emotion: quiet courage, not bravado
+           Composition: soldiers retreating in the middle distance, David alone in the foreground,
+                        sharp and still, ordinary stance
+           Avoid: dramatic hero pose, warrior stance, fantasy armor — small + vulnerable + courageous,
+                  not powerful-looking -->
+      <div class="moment" onclick="pickMoment(this)">
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Hill%20silhouette%20%283465111965%29.jpg?width=500" alt="courage placeholder — David stands firm">
+        <div class="scrim-b"></div>
+        <div class="m-cap">כולם פוחדים. דוד לא</div>
+      </div>
+      <!-- CHOICE 3 — David is ready to act  [PLACEHOLDER, needs real Key Art]
+           Purpose: action before the confrontation
+           Emotion: focus, not aggression or fear
+           Composition: tight chest-up shot, hands loading the sling, dramatic low dusk light,
+                        shallow depth of field
+           Avoid: triumphant flex, warrior pose, perfect Hollywood face — his hands do the work,
+                  not a heroic body -->
+      <div class="moment" onclick="pickMoment(this)">
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Desert%20textures%20at%20golden%20hour%20%2851005202791%29.jpg?width=500" alt="action placeholder — David preparing">
+        <div class="scrim-b"></div>
+        <div class="m-cap">דוד מוכן לפעול</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENDING -->
+  <div class="fr" id="f-ending">
+    <!-- ENDING — next-episode tease  [PLACEHOLDER, needs real Key Art]
+         Purpose: hint at "Saul's Jealousy" (1 Samuel 18) without concluding this episode
+         Emotion: unresolved tension, anticipation
+         Composition: dim dusk/blue-hour frame of Saul's court at night, deliberately less finished-looking
+                      than this episode's warmer daytime tones
+         Avoid: a fully resolved or triumphant image — this must tease, not close the story -->
+    <div class="keyart">
+      <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Hill%20silhouette%20%283465111965%29.jpg?width=900" alt="David and Saul, concept-art placeholder for next-episode tease">
+      <div class="scrim-full"></div>
+    </div>
+    <p class="end-line">חמש אבנים. עולם עוצר נשימה.</p>
+    <div class="next-label">בפרק הבא</div>
+    <div class="next-title">קנאת שאול</div>
+    <p class="next-sub">חברות אחת. פחד אחד. אותו שבוע.</p>
+    <a class="back-home-link" href="bibleflow_product_layer.html">חזרה לבית</a>
+  </div>
+
+</div>
+
+<script>
+  // ============================================================
+  // USER-TESTING INSTRUMENTATION ONLY — no design/animation/content changes.
+  // Tracks: current screen, per-screen dwell time, stuck points, restart.
+  // ============================================================
+  const STUCK_MS = 12000;           // flag a screen as "stuck" past this dwell time
+  const STUCK_REVISITS = 3;         // flag as "stuck" if the same screen is revisited this many times in one attempt
+  const SCREENS_ORDER = ['home','story','scripture','reading','choice','ending'];
+  let sessionLog = [];
+  let visitCounts = {};
+  let currentScreen = 'home';
+  let screenStartTime = performance.now();
+  let attemptNumber = 1;
+  let tickHandle = null;
+
+  function fmtSec(ms){ return (ms/1000).toFixed(1) + 's'; }
+
+  function logVisitEnd(screen, dwellMs, reason){
+    visitCounts[screen] = (visitCounts[screen]||0) + 1;
+    const stuck = dwellMs > STUCK_MS || visitCounts[screen] > STUCK_REVISITS;
+    sessionLog.push({
+      attempt: attemptNumber,
+      screen: screen,
+      dwellMs: Math.round(dwellMs),
+      visitNumber: visitCounts[screen],
+      stuck: stuck,
+      stuckReason: dwellMs > STUCK_MS ? 'dwell>'+ (STUCK_MS/1000) +'s' : (visitCounts[screen] > STUCK_REVISITS ? 'revisited x'+visitCounts[screen] : null)
+    });
+    renderLog();
+  }
+
+  function renderLog(){
+    const el = document.getElementById('testerLog');
+    if(!el) return;
+    el.innerHTML = sessionLog.slice().reverse().map(function(e){
+      const tag = e.stuck ? ('<span class="stuck">⚠ נתקע — '+e.stuckReason+'</span>') : '';
+      return '#'+e.attempt+' · '+e.screen+' · '+fmtSec(e.dwellMs)+' · ביקור '+e.visitNumber+' '+tag;
+    }).join('<br>');
+  }
+
+  function goTo(t){
+    const now = performance.now();
+    logVisitEnd(currentScreen, now - screenStartTime);
+    currentScreen = t;
+    screenStartTime = now;
+
+    document.querySelectorAll('.cut').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('.fr').forEach(f=>f.classList.remove('on'));
+    document.querySelector('.cut[data-t="'+t+'"]').classList.add('on');
+    document.getElementById('f-' + t).classList.add('on');
+    if(t === 'story'){ bi = 0; document.getElementById('storyLine').textContent = beats[0].text; setStoryArt(0); }
+    if(t === 'scripture'){ document.getElementById('discoverLine').classList.remove('open'); }
+
+    const nowEl = document.getElementById('nowScreen');
+    if(nowEl) nowEl.textContent = t;
+
+    saveSceneProgress(t === 'story' ? 'story-0' : t);
+  }
+  document.querySelectorAll('.cut').forEach(c=> c.addEventListener('click', ()=> goTo(c.dataset.t)));
+
+  function restartTest(){
+    // ends the current screen's visit as a normal transition, then starts a new numbered attempt from Home
+    const now = performance.now();
+    logVisitEnd(currentScreen, now - screenStartTime, 'restart');
+    attemptNumber++;
+    visitCounts = {};
+    document.querySelectorAll('.moment').forEach(m=>{ m.classList.remove('dim'); m.classList.remove('chosen'); });
+    goTo('home');
+  }
+
+  function tick(){
+    const el = document.getElementById('nowTimer');
+    if(el) el.textContent = fmtSec(performance.now() - screenStartTime);
+  }
+  tickHandle = setInterval(tick, 200);
+
+  // STORY BEATS — image filenames swapped per beat by setStoryArt(). Notes for beats 2 and 3
+  // (beat 1's full note is on the initial <img id="storyArt"> above):
+  //
+  // BEAT 2 — his brothers dismiss him
+  //   Purpose: the emotional distance between David and the armed adults around him
+  //   Emotion: restrained dismissal, not cartoon anger
+  //   Composition: 2-3 armed men glancing at him, David holding his ground, subtle expression
+  //   Avoid: exaggerated anger, violence, heroic composition
+  //
+  // BEAT 3 — David is not afraid
+  //   Purpose: quiet resolve before the confrontation
+  //   Emotion: calm determination, not bravado
+  //   Composition: David alone, looking toward an unseen distant threat, warm rim-light
+  //   Avoid: triumphant/heroic stare, muscular body — vulnerable but determined
+  const beats = [
+    { text:"דוד הגיע למחנה. הוא שמע את קולו של הענק.", img:"Judean-desert-wadi-perazim-c.JPG" },
+    { text:"אחיו הגדולים לא לקחו אותו ברצינות.", img:"Desert%20textures%20at%20golden%20hour%20%2851005202791%29.jpg" },
+    { text:"דוד ידע דבר אחד — הוא לא פחד.", img:"Hill%20silhouette%20%283465111965%29.jpg" }
+  ];
+  let bi = 0;
+  function setStoryArt(i){
+    document.querySelector('#storyArt img').src = 'https://commons.wikimedia.org/wiki/Special:FilePath/' + beats[i].img + '?width=900';
+  }
+  function storyTap(){
+    if(bi < beats.length - 1){
+      bi++;
+      saveSceneProgress('story-'+bi);
+      const el = document.getElementById('storyLine');
+      el.style.opacity = 0;
+      setTimeout(()=>{ el.textContent = beats[bi].text; setStoryArt(bi); el.style.opacity = 1; }, 220);
+    } else {
+      goTo('scripture');
+    }
+  }
+
+  function toggleDiscover(e){
+    e.stopPropagation();
+    document.getElementById('discoverLine').classList.toggle('open');
+  }
+
+  function pickMoment(el){
+    document.querySelectorAll('.moment').forEach(m=>{ m.classList.add('dim'); m.classList.remove('chosen'); });
+    el.classList.remove('dim'); el.classList.add('chosen');
+    setTimeout(()=> goTo('ending'), 700); // completes the full Home→Story→Scripture→Reading→Choice→Ending path
+  }
+
+  // ============================================================
+  // PRODUCT-LAYER BRIDGE — additive only, no visual/story-engine changes.
+  // Shares one localStorage record with bibleflow_product_layer.html so a
+  // returning student sees "continue" on the Home library and, if they
+  // reopen this episode directly, lands back on the exact scene they left.
+  // ============================================================
+  const EPISODE_ID = { book:'שמואל א׳', chapter:'פרק י״ז', episode:'דוד וגוליית' };
+
+  function loadState(){
+    try{ return JSON.parse(localStorage.getItem('bf_state')) || {}; }catch(e){ return {}; }
+  }
+  function saveState(patch){
+    localStorage.setItem('bf_state', JSON.stringify(Object.assign(loadState(), patch)));
+  }
+  function saveSceneProgress(scene){
+    saveState({
+      lastBook: EPISODE_ID.book,
+      lastChapter: EPISODE_ID.chapter,
+      lastEpisode: EPISODE_ID.episode,
+      lastScene: scene,
+      progress: scene === 'ending' ? 'completed' : 'in-progress'
+    });
+  }
+
+  // Resume exactly where a returning student stopped, within this same episode only.
+  (function resumeIfReturning(){
+    const s = loadState();
+    if(s.lastEpisode === EPISODE_ID.episode && s.lastScene && s.progress !== 'completed' && s.lastScene !== 'home'){
+      let scene = s.lastScene, beatIndex = 0;
+      if(scene.indexOf('story-') === 0){ beatIndex = parseInt(scene.split('-')[1],10) || 0; scene = 'story'; }
+      setTimeout(function(){
+        goTo(scene);
+        if(scene === 'story' && beatIndex > 0){
+          bi = beatIndex;
+          document.getElementById('storyLine').textContent = beats[bi].text;
+          setStoryArt(bi);
+        }
+      }, 0);
+    }
+  })();
+</script>
+
+</body>
+</html>
