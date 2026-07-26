@@ -147,6 +147,9 @@
   .reel-dots{position:absolute; top:10px; left:0; right:0; display:flex; justify-content:center; gap:5px; z-index:2;}
   .reel-dots span{width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.35); transition:background .2s;}
   .reel-dots span.active{background:#fff;}
+  .reel-placeholder{position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    color:rgba(255,255,255,0.4); font-size:13px; text-align:center; padding:0 20px;
+    background:linear-gradient(135deg, #1a1a20, #111116);}
   .reel-caption{position:absolute; left:0; right:0; bottom:0; padding:16px 16px 12px; z-index:2;
     background:linear-gradient(to top, rgba(0,0,0,0.88), rgba(0,0,0,0.35) 70%, rgba(0,0,0,0));
     color:#fff; font-size:14.5px; line-height:1.5; text-align:center; font-weight:600;}
@@ -627,8 +630,10 @@
     `;
   }
   let reelTimer = null;
+  let reelLoadTimer = null;
   function stopReel(){
     if(reelTimer){ clearInterval(reelTimer); reelTimer = null; }
+    if(reelLoadTimer){ clearTimeout(reelLoadTimer); reelLoadTimer = null; }
   }
   function renderReel(reel){
     const holder = document.getElementById('reelHolder');
@@ -637,24 +642,55 @@
     holder.innerHTML = `
       <div class="reel-wrap" id="reelWrap">
         <div class="reel-dots" id="reelDots"></div>
-        <img id="reelImg" alt="רגע מהפרק">
+        <img id="reelImg" alt="רגע מהפרק" style="display:none;">
+        <div class="reel-placeholder" id="reelPlaceholder">מכינים תמונה…</div>
         <div class="reel-caption" id="reelCaption"></div>
       </div>
     `;
     const dotsEl = document.getElementById('reelDots');
     dotsEl.innerHTML = reel.map((_, idx) => `<span class="${idx===0?'active':''}"></span>`).join('');
     const img = document.getElementById('reelImg');
+    const placeholder = document.getElementById('reelPlaceholder');
     const cap = document.getElementById('reelCaption');
+    const loaded = new Array(reel.length).fill(false);
     let i = 0;
+
     function show(idx){
       i = (idx + reel.length) % reel.length;
-      img.src = reel[i].imageUrl;
       cap.textContent = reel[i].caption || '';
       [...dotsEl.children].forEach((d, idx2) => d.classList.toggle('active', idx2 === i));
+      if(loaded[i]){
+        img.src = reel[i].imageUrl;
+        img.style.display = 'block';
+        placeholder.style.display = 'none';
+      } else {
+        img.style.display = 'none';
+        placeholder.style.display = 'flex';
+      }
     }
     show(0);
     reelTimer = setInterval(() => show(i + 1), 4500);
     document.getElementById('reelWrap').onclick = () => { show(i + 1); clearInterval(reelTimer); reelTimer = setInterval(() => show(i + 1), 4500); };
+
+    // Background, paced image loading — captions above always work
+    // immediately (pure text), images fill in progressively. Each frame is
+    // preloaded off-screen, one at a time, ~16 seconds apart, to respect
+    // Pollinations' documented free/anonymous limit (~1 image per 15s per
+    // visitor). This runs on every visitor's own browser/IP — not a shared
+    // server IP — which is what makes it reliable (see bibleflow_worker.js
+    // for why generating these server-side hit a wall). If a frame is
+    // already showing when its image finishes loading, it appears live.
+    let n = 0;
+    function loadNext(){
+      if(n >= reel.length) return;
+      const idx = n++;
+      const im = new Image();
+      im.onload = () => { loaded[idx] = true; if(i === idx) show(idx); };
+      im.onerror = () => {}; // stays a placeholder — not fatal, caption still shows
+      im.src = reel[idx].imageUrl;
+      reelLoadTimer = setTimeout(loadNext, 16000);
+    }
+    loadNext();
   }
   async function loadAIEnrichment(parsed, heRef){
     stopReel();
@@ -680,7 +716,7 @@
           <div style="width:100%">
             <div class="ai-card-title" style="margin-bottom:10px;">רצף הסיפור</div>
             <div id="reelHolder"></div>
-            ${!hasReel ? '<div class="ai-card-sub">לא התקבל רצף תמונות כרגע.</div>' : '<div class="ai-card-sub" style="margin-top:8px;">לוחצים על התמונה כדי לדלג לרגע הבא.</div>'}
+            ${!hasReel ? '<div class="ai-card-sub">לא התקבל רצף תמונות כרגע.</div>' : '<div class="ai-card-sub" style="margin-top:8px;">התמונות נטענות בהדרגה — לוחצים כדי לדלג לרגע הבא.</div>'}
           </div>
         </div>
       `;
