@@ -5,87 +5,124 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BibleFlow — קורא תנ״ך חכם</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;800;900&family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<!-- Add-to-Home-Screen support: on iPhone, opening this page and choosing
+     Share → "Add to Home Screen" installs it as a standalone app icon that
+     launches without Safari's browser chrome. -->
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BibleFlow">
+<meta name="theme-color" content="#0e0e11">
 <style>
   :root{
-    --gold:#E8B84B; --gold-dim:#A9873F;
-    --evening:#6E8CA0; --olive:#6B7A4F;
-    --parch:#F1EBDD; --ink:#12100c; --ink2:#1b1712;
+    --accent:#F2843C; --accent-dim:#C96A2D;
+    --purple:#8B6FE8; --green:#3FBF8F; --blue:#4E8FE8;
+    --parch:#F3F1EC; --dim:rgba(243,241,236,0.55); --dim2:rgba(243,241,236,0.35);
+    --card:#1A1A1E; --card2:#151519;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
-  html,body{background:#0d0b08;}
+  html,body{background:#0b0b0d;}
   body{font-family:'Heebo',sans-serif; color:var(--parch); display:flex; flex-direction:column; align-items:center; padding:24px 10px; gap:12px;}
-  .hint{font-size:11px; color:#999; text-align:center; max-width:420px; line-height:1.7;}
+  .hint{font-size:11px; color:#888; text-align:center; max-width:420px; line-height:1.7;}
 
-  .device{width:390px; max-width:100%; min-height:812px; position:relative; overflow:hidden; border-radius:22px;
-    background:radial-gradient(120% 100% at 50% 0%, #241d12 0%, #0d0b08 60%); box-shadow:0 10px 30px rgba(0,0,0,0.4);
+  .device{width:390px; max-width:100%; min-height:812px; position:relative; overflow:hidden; border-radius:26px;
+    background:#0e0e11; box-shadow:0 10px 30px rgba(0,0,0,0.45);
     display:flex; flex-direction:column;}
 
   .fr{display:none; flex-direction:column; flex:1; min-height:812px;}
   .fr.on{display:flex; animation:fadein .35s ease;}
   @keyframes fadein{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
 
-  .top{display:flex; align-items:center; justify-content:space-between; padding:22px 24px 0;}
-  .brand{display:flex; align-items:baseline; gap:8px;}
-  .brand-mark{font-family:'Frank Ruhl Libre',serif; font-size:16px; font-weight:800; color:var(--gold); line-height:1;}
-  .brand-name{font-family:'Heebo',sans-serif; font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(241,235,221,0.55);}
+  .screen-scroll{flex:1; overflow-y:auto; padding-bottom:14px;}
+
+  .top{display:flex; align-items:center; justify-content:space-between; padding:20px 20px 0;}
+  .brand{display:flex; align-items:center; gap:8px;}
+  .brand-name{font-family:'Heebo',sans-serif; font-size:22px; font-weight:900; color:var(--accent); letter-spacing:-0.3px;}
+  .beta-tag{font-size:9.5px; font-weight:800; letter-spacing:0.5px; color:#0e0e11; background:var(--parch); opacity:0.85; padding:3px 8px; border-radius:6px; margin-inline-start:2px;}
+  .icon-btn{width:36px; height:36px; border-radius:50%; background:var(--card); border:1px solid rgba(255,255,255,0.08);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform .15s;}
+  .icon-btn:active{transform:scale(0.9);}
+  .top-icons{display:flex; gap:8px;}
 
   /* ============ SEARCH (home) ============ */
-  #f-search{padding:0 24px 30px; justify-content:flex-start;}
-  .hero-copy{padding:34px 2px 22px;}
-  .hero-title{font-family:'Frank Ruhl Libre',serif; font-size:27px; font-weight:800; line-height:1.25; margin-bottom:10px;}
-  .hero-sub{font-size:13.5px; color:rgba(241,235,221,0.65); line-height:1.6;}
+  .greeting-line{padding:18px 20px 4px; font-size:13.5px; color:var(--dim);}
 
-  .search-box{position:relative; margin-bottom:16px;}
-  .search-input{width:100%; background:rgba(241,235,221,0.07); border:1.5px solid rgba(232,184,75,0.35); border-radius:14px;
-    padding:16px 52px 16px 16px; color:var(--parch); font-size:16px; font-family:'Heebo',sans-serif; transition:border-color .2s, box-shadow .2s;}
-  .search-input:focus{outline:none; border-color:var(--gold); box-shadow:0 0 0 4px rgba(232,184,75,0.15);}
-  .search-input::placeholder{color:rgba(241,235,221,0.4);}
-  .search-go{position:absolute; left:8px; top:50%; transform:translateY(-50%); width:38px; height:38px; border-radius:10px;
-    background:var(--gold); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  .search-box{position:relative; margin:14px 20px 0;}
+  .search-input{width:100%; background:var(--card); border:none; border-radius:16px;
+    padding:16px 54px 16px 18px; color:var(--parch); font-size:15.5px; font-family:'Heebo',sans-serif;}
+  .search-input:focus{outline:none; box-shadow:0 0 0 2px var(--accent);}
+  .search-input::placeholder{color:var(--dim2);}
+  .search-go{position:absolute; left:6px; top:50%; transform:translateY(-50%); width:40px; height:40px; border-radius:12px;
+    background:var(--accent); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
     transition:transform .15s;}
   .search-go:active{transform:translateY(-50%) scale(0.88);}
   .search-go svg{width:18px; height:18px;}
 
-  .chip-label{font-size:10.5px; color:rgba(241,235,221,0.45); letter-spacing:1px; text-transform:uppercase; margin:18px 0 10px;}
-  .chips{display:flex; flex-wrap:wrap; gap:8px;}
-  .chip{background:rgba(241,235,221,0.06); border:1px solid rgba(241,235,221,0.18); color:var(--parch); font-size:13px;
-    padding:9px 16px; border-radius:999px; cursor:pointer; transition:transform .15s, background .15s, border-color .15s;}
-  .chip:hover{background:rgba(232,184,75,0.12); border-color:rgba(232,184,75,0.5); transform:translateY(-1px);}
-  .chip:active{transform:scale(0.94);}
-  .chip.resume{background:rgba(232,184,75,0.14); border-color:rgba(232,184,75,0.55); font-weight:600;}
+  .surprise-link{display:flex; align-items:center; justify-content:center; gap:6px; width:calc(100% - 40px); margin:10px 20px 0;
+    background:none; border:none; padding:6px; font-family:'Heebo',sans-serif; font-size:11.5px; color:var(--dim2); cursor:pointer;}
+  .surprise-link:active{opacity:0.6;}
 
-  .footnote{margin-top:auto; padding-top:26px; font-size:11px; color:rgba(241,235,221,0.35); text-align:center; line-height:1.6;}
+  .resume-banner{margin:16px 20px 0; background:linear-gradient(120deg, var(--accent), var(--accent-dim));
+    border-radius:18px; padding:16px 18px; display:flex; align-items:center; justify-content:space-between; cursor:pointer;
+    transition:transform .15s;}
+  .resume-banner:active{transform:scale(0.98);}
+  .resume-banner-text{color:#1a1006;}
+  .resume-banner-tag{font-size:10.5px; font-weight:700; opacity:0.75; margin-bottom:4px;}
+  .resume-banner-title{font-size:15px; font-weight:800;}
+  .resume-banner-icon{width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.28); display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
+
+  .section-label{padding:22px 20px 12px; font-size:11px; color:var(--dim); font-weight:600;}
+
+  .card-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 20px;}
+  .fchip{position:relative; background:var(--card); border-radius:16px; padding:14px; cursor:pointer; overflow:hidden;
+    transition:transform .15s;}
+  .fchip:active{transform:scale(0.96);}
+  .fchip-dot{position:absolute; top:12px; right:12px; width:7px; height:7px; border-radius:50%;}
+  .fchip-icon{width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; margin-bottom:22px;}
+  .fchip-icon svg{width:19px; height:19px;}
+  .fchip-title{font-size:13.5px; font-weight:700; margin-bottom:3px; line-height:1.3;}
+  .fchip-sub{font-size:10.5px; color:var(--dim); line-height:1.4;}
+
+  .footnote{padding:20px 24px 8px; font-size:11px; color:var(--dim2); text-align:center; line-height:1.6;}
+
+  /* bottom nav */
+  .bottom-nav{display:flex; align-items:center; justify-content:space-around; padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+    background:#0e0e11; border-top:1px solid rgba(255,255,255,0.06);}
+  .nav-item{display:flex; flex-direction:column; align-items:center; gap:4px; padding:8px 18px; border-radius:20px;
+    cursor:pointer; color:var(--dim); font-size:10.5px; font-weight:600; transition:background .15s, color .15s;}
+  .nav-item svg{width:20px; height:20px;}
+  .nav-item.active{background:var(--accent); color:#1a1006;}
 
   /* ============ RESULT ============ */
-  #f-result{padding:0 22px 26px;}
-  .back-link{align-self:flex-start; font-size:13px; color:rgba(241,235,221,0.55); background:none; border:none; cursor:pointer;
-    padding:18px 2px 4px; display:flex; align-items:center; gap:6px;}
+  .back-link{align-self:flex-start; font-size:13px; color:var(--dim); background:none; border:none; cursor:pointer;
+    padding:18px 20px 4px; display:flex; align-items:center; gap:6px;}
   .back-link:active{opacity:0.6;}
-  .result-ref{font-family:'Frank Ruhl Libre',serif; font-size:24px; font-weight:800; margin:14px 0 4px; color:var(--gold);}
-  .result-sub{font-size:12px; color:rgba(241,235,221,0.5); margin-bottom:18px;}
+  .result-body{padding:0 20px;}
+  .result-ref{font-size:23px; font-weight:800; margin:14px 0 4px; color:var(--parch);}
+  .result-sub{font-size:12px; color:var(--dim); margin-bottom:18px;}
 
-  .state-msg{padding:60px 10px; text-align:center; font-size:14px; color:rgba(241,235,221,0.6); line-height:1.8;}
-  .pulse-dot{display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--gold); margin-inline-end:8px;
+  .state-msg{padding:60px 10px; text-align:center; font-size:14px; color:var(--dim); line-height:1.8;}
+  .pulse-dot{display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--accent); margin-inline-end:8px;
     animation:pulse 1s ease-in-out infinite;}
   @keyframes pulse{0%,100%{opacity:0.3; transform:scale(0.8);} 50%{opacity:1; transform:scale(1.15);}}
 
-  .verses{display:flex; flex-direction:column; gap:14px; margin-bottom:22px;}
-  .verse{font-family:'Frank Ruhl Libre',serif; font-size:17.5px; line-height:1.9; opacity:0; transform:translateY(6px);
-    animation:vin .5s ease forwards;}
-  .verse .vnum{color:var(--gold-dim); font-family:'Heebo',sans-serif; font-size:11px; font-weight:700; margin-inline-end:8px; vertical-align:middle;}
+  .verses{display:flex; flex-direction:column; gap:14px; margin-bottom:22px; background:var(--card); border-radius:16px; padding:18px;}
+  .verse{font-size:17px; line-height:1.9; opacity:0; transform:translateY(6px); animation:vin .5s ease forwards;}
+  .verse .vnum{color:var(--accent); font-family:'Heebo',sans-serif; font-size:11px; font-weight:800; margin-inline-end:8px; vertical-align:middle;}
   @keyframes vin{to{opacity:1; transform:translateY(0);}}
 
-  .listen-bar{position:sticky; bottom:14px; display:flex; align-items:center; gap:12px; background:rgba(20,16,10,0.92);
-    backdrop-filter:blur(6px); border:1px solid rgba(232,184,75,0.3); border-radius:16px; padding:12px 16px; margin-top:6px;
-    box-shadow:0 8px 24px rgba(0,0,0,0.4);}
-  .listen-btn{width:44px; height:44px; border-radius:50%; background:var(--gold); border:none; cursor:pointer; flex:0 0 auto;
+  .listen-bar{display:flex; align-items:center; gap:12px; background:var(--card); border-radius:16px; padding:12px 16px; margin-bottom:6px;}
+  .listen-btn{width:44px; height:44px; border-radius:50%; background:var(--accent); border:none; cursor:pointer; flex:0 0 auto;
     display:flex; align-items:center; justify-content:center; transition:transform .15s;}
   .listen-btn:active{transform:scale(0.9);}
   .listen-btn svg{width:18px; height:18px;}
   .listen-label{font-size:13px; color:var(--parch);}
   .listen-bars{display:flex; align-items:center; gap:2.5px; height:16px; margin-inline-start:auto;}
-  .listen-bars span{width:3px; background:var(--gold); border-radius:2px; height:4px; opacity:0.4;}
+  .listen-bars span{width:3px; background:var(--accent); border-radius:2px; height:4px; opacity:0.4;}
   .listen-bars.playing span{animation:bar 0.9s ease-in-out infinite; opacity:1;}
   .listen-bars span:nth-child(1){animation-delay:0s;}
   .listen-bars span:nth-child(2){animation-delay:.15s;}
@@ -93,11 +130,90 @@
   .listen-bars span:nth-child(4){animation-delay:.45s;}
   @keyframes bar{0%,100%{height:4px;} 50%{height:16px;}}
 
-  .ai-row{display:flex; flex-direction:column; gap:10px; margin-top:18px;}
-  .ai-card{position:relative; border:1px dashed rgba(241,235,221,0.25); border-radius:12px; padding:14px 16px; overflow:hidden;}
-  .ai-card-title{font-size:13.5px; font-weight:700; color:rgba(241,235,221,0.75); margin-bottom:4px; display:flex; align-items:center; gap:8px;}
-  .ai-card-sub{font-size:11.5px; color:rgba(241,235,221,0.45); line-height:1.5;}
-  .soon-badge{font-size:9.5px; letter-spacing:0.5px; color:#12100c; background:var(--gold); padding:2px 8px; border-radius:20px; font-weight:700;}
+  .ai-row{display:flex; flex-direction:column; gap:10px; margin-top:14px; margin-bottom:20px;}
+  .ai-card{position:relative; background:var(--card2); border:1px solid rgba(255,255,255,0.06); border-radius:16px; padding:14px 16px; display:flex; gap:12px; align-items:flex-start;}
+  .ai-card-icon{width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex:0 0 auto; background:rgba(255,255,255,0.06);}
+  .ai-card-icon svg{width:16px; height:16px;}
+  .ai-card-title{font-size:13px; font-weight:700; color:var(--parch); margin-bottom:3px; display:flex; align-items:center; gap:8px;}
+  .ai-card-sub{font-size:11px; color:var(--dim2); line-height:1.5;}
+  .soon-badge{font-size:9px; letter-spacing:0.3px; color:#0e0e11; background:var(--parch); opacity:0.8; padding:2px 7px; border-radius:20px; font-weight:800;}
+  .ai-card-image{width:100%; height:150px; object-fit:cover; border-radius:12px; margin-bottom:10px; display:block;}
+  .ai-card-text{font-size:12px; color:var(--dim2); line-height:1.7;}
+  .next-chapter-link{display:flex; align-items:center; justify-content:center; gap:6px; width:100%; margin-top:10px;
+    background:none; border:none; padding:10px; font-family:'Heebo',sans-serif; font-weight:700; font-size:13px; color:var(--dim2); cursor:pointer;}
+  .next-chapter-link:active{opacity:0.6;}
+  .next-chapter-link svg{transform:scaleX(-1);}
+  .skel{background:linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.10) 37%, rgba(255,255,255,0.05) 63%); background-size:400% 100%; animation:skel-shine 1.4s ease infinite; border-radius:10px;}
+  .skel-title{width:120px; height:12px; margin-bottom:8px;}
+  .skel-line{width:100%; height:10px; margin-bottom:6px;}
+  .skel-line:last-child{width:70%;}
+  .skel-image{width:100%; height:150px; border-radius:12px; margin-bottom:10px;}
+  @keyframes skel-shine{0%{background-position:100% 0;} 100%{background-position:0 0;}}
+
+  .voice-diag{font-size:10.5px; color:var(--dim2); margin-bottom:16px; text-align:center; line-height:1.6; padding:0 4px;}
+
+  /* ============ DUEL ENTRY (on result screen) ============ */
+  .duel-entry-btn{width:100%; display:flex; align-items:center; gap:12px; background:linear-gradient(120deg, #2a2418, #1c1a14);
+    border:1px solid rgba(233,199,123,0.35); border-radius:16px; padding:14px 16px; cursor:pointer; margin-bottom:24px; text-align:right;}
+  .duel-entry-btn:active{transform:scale(0.98);}
+  .duel-entry-icon{width:36px; height:36px; border-radius:10px; background:rgba(233,199,123,0.12); display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
+  .duel-entry-text{display:flex; flex-direction:column; gap:2px;}
+  .duel-entry-title{font-size:13.5px; font-weight:800; color:#E9C77B;}
+  .duel-entry-sub{font-size:10.5px; color:rgba(233,199,123,0.55); line-height:1.4;}
+
+  /* ============ DUEL GAME SCREEN — own cinematic gold/slate language, distinct from the app's orange theme ============ */
+  #f-duel{background:#0a0906;}
+  .duel-wrap{flex:1; display:flex; flex-direction:column; padding:0 22px 26px; overflow-y:auto;}
+  .duel-close{align-self:flex-start; font-size:13px; color:rgba(233,199,123,0.6); background:none; border:none; cursor:pointer; padding:18px 0 6px;}
+  .duel-stage-label{font-size:10.5px; letter-spacing:1.5px; text-transform:uppercase; color:#8891A0; text-align:center; margin-top:10px;}
+  .duel-title{font-family:'Heebo',sans-serif; font-size:22px; font-weight:900; color:#E9C77B; text-align:center; margin:8px 0 4px;}
+  .duel-sub{font-size:12.5px; color:#8891A0; text-align:center; margin-bottom:22px; line-height:1.6;}
+
+  .duel-code-box{background:#15140f; border:1px solid rgba(233,199,123,0.3); border-radius:18px; padding:26px; text-align:center; margin-bottom:16px;}
+  .duel-code{font-size:44px; font-weight:900; letter-spacing:10px; color:#E9C77B; margin-bottom:10px; font-family:'Heebo',sans-serif;}
+  .duel-code-label{font-size:11px; color:#8891A0;}
+  .duel-share-btn{width:100%; background:#1f2937; color:#E9C77B; border:1px solid rgba(233,199,123,0.35); border-radius:12px;
+    padding:13px; font-size:13.5px; font-weight:700; cursor:pointer; margin-bottom:10px;}
+  .duel-start-btn{width:100%; background:#E9C77B; color:#1a1006; border:none; border-radius:12px; padding:14px; font-size:14.5px;
+    font-weight:800; cursor:pointer; margin-top:10px;}
+  .duel-start-btn:active{transform:scale(0.98);}
+
+  .duel-timer-row{display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:20px;}
+  .duel-timer-ring{width:52px; height:52px; border-radius:50%; border:3px solid #2a2a30; border-top-color:#E9C77B; display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:16px; color:#E9C77B; animation:duelspin 30s linear;}
+  @keyframes duelspin{from{transform:rotate(0deg);} to{transform:rotate(1080deg);}}
+
+  .duel-cards{display:flex; flex-direction:column; gap:12px; margin-bottom:16px;}
+  .duel-card{position:relative; background:#15140f; border:1.5px solid #2a2a30; border-radius:16px; padding:18px 16px; cursor:pointer;
+    transition:border-color .15s, transform .15s;}
+  .duel-card:active{transform:scale(0.98);}
+  .duel-card.selected{border-color:#E9C77B; background:#1c1a10;}
+  .duel-card.correct{border-color:#4ADE80; background:#132018;}
+  .duel-card.wrong-impostor{border-color:#F87171; background:#20130f;}
+  .duel-card-letter{position:absolute; top:14px; left:16px; width:24px; height:24px; border-radius:50%; background:#2a2a30; color:#8891A0;
+    font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center;}
+  .duel-card-text{font-size:14.5px; line-height:1.6; color:var(--parch); padding-left:34px;}
+  .duel-card-tag{margin-top:10px; font-size:11px; font-weight:700; padding-left:34px;}
+  .duel-card-tag.impostor-tag{color:#F87171;}
+  .duel-card-tag.true-tag{color:#4ADE80;}
+
+  .duel-reveal-verse{background:#111015; border-radius:14px; padding:16px; margin-top:6px; margin-bottom:18px; border:1px solid rgba(233,199,123,0.25);}
+  .duel-reveal-label{font-size:10.5px; color:#8891A0; margin-bottom:6px; letter-spacing:0.5px;}
+  .duel-reveal-text{font-size:15px; line-height:1.8; color:#E9C77B;}
+
+  .duel-note{font-size:11.5px; color:#666; text-align:center; line-height:1.6; margin-top:auto; padding-top:16px;}
+
+  .duel-name-input{width:100%; background:#15140f; border:1px solid rgba(233,199,123,0.3); border-radius:12px;
+    padding:14px 16px; color:#E9C77B; font-size:15px; font-family:'Heebo',sans-serif; margin-bottom:12px; text-align:center;}
+  .duel-name-input::placeholder{color:#8891A0;}
+
+  .duel-leaderboard{background:#111015; border-radius:14px; padding:14px 16px; margin-bottom:18px; border:1px solid rgba(233,199,123,0.15);}
+  .duel-board-row{display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:13px; color:var(--parch);}
+  .duel-board-row:last-child{border-bottom:none;}
+  .duel-board-rank{color:#8891A0; font-weight:700; width:18px;}
+  .duel-board-name{flex:1; font-weight:600;}
+  .duel-board-result{font-weight:800;}
+  .duel-board-time{color:#8891A0; font-size:11.5px;}
 </style>
 </head>
 <body>
@@ -109,28 +225,84 @@
   <!-- SEARCH -->
   <div class="fr on" id="f-search">
     <div class="top">
-      <div class="brand"><div class="brand-mark">א</div><div class="brand-name">BibleFlow</div></div>
+      <div class="brand"><div class="brand-name">BibleFlow</div><div class="beta-tag">BETA</div></div>
+      <div class="top-icons">
+        <div class="icon-btn" onclick="showHelp()" aria-label="עזרה">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="var(--parch)" stroke-width="1.6" opacity="0.6"/><path d="M12 16v.01M12 8a2 2 0 0 1 2 2c0 1.2-1 1.4-1.6 2-.3.3-.4.6-.4 1" stroke="var(--parch)" stroke-width="1.6" stroke-linecap="round" opacity="0.6"/></svg>
+        </div>
+      </div>
     </div>
-    <div class="hero-copy">
-      <div class="hero-title">איזה פרק בא לך<br>לגלות היום?</div>
-      <p class="hero-sub">הקלידו ספר ופרק — הטקסט האמיתי עולה מיד, ואפשר גם לשמוע אותו מוקרא.</p>
-    </div>
-    <div class="search-box">
-      <input class="search-input" id="searchInput" type="text" placeholder="למשל: שמואל א פרק יז" onkeydown="if(event.key==='Enter') runSearch()">
-      <button class="search-go" onclick="runSearch()" aria-label="חפש">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#12100c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+
+    <div class="screen-scroll">
+      <div class="greeting-line" id="greetingLine">בואו נגלה מה כתוב היום</div>
+
+      <div class="search-box">
+        <input class="search-input" id="searchInput" type="text" placeholder="חפשו ספר ופרק... שמואל א יז" onkeydown="if(event.key==='Enter') runSearch()">
+        <button class="search-go" onclick="runSearch()" aria-label="חפש">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#1a1006" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+
+      <button class="surprise-link" onclick="surpriseMe()">
+        <svg viewBox="0 0 24 24" fill="none" width="14" height="14"><rect x="4" y="4" width="16" height="16" rx="3" stroke="var(--dim2)" stroke-width="1.6"/><circle cx="8.5" cy="8.5" r="1.2" fill="var(--dim2)"/><circle cx="15.5" cy="8.5" r="1.2" fill="var(--dim2)"/><circle cx="8.5" cy="15.5" r="1.2" fill="var(--dim2)"/><circle cx="15.5" cy="15.5" r="1.2" fill="var(--dim2)"/><circle cx="12" cy="12" r="1.2" fill="var(--dim2)"/></svg>
+        הפתיעו אותי בפרק אקראי
       </button>
+
+      <div id="resumeBannerWrap"></div>
+
+      <div class="section-label">או התחילו מכאן</div>
+      <div class="card-grid">
+        <div class="fchip" onclick="quickSearch('בראשית א')">
+          <span class="fchip-dot" style="background:var(--purple)"></span>
+          <div class="fchip-icon" style="background:rgba(139,111,232,0.18)">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" stroke="var(--purple)" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="4" stroke="var(--purple)" stroke-width="1.8"/></svg>
+          </div>
+          <div class="fchip-title">חמישה חומשי תורה</div>
+          <div class="fchip-sub">מתחילים מבראשית א׳</div>
+        </div>
+        <div class="fchip" onclick="quickSearch('מלכים א א')">
+          <span class="fchip-dot" style="background:var(--accent)"></span>
+          <div class="fchip-icon" style="background:rgba(242,132,60,0.18)">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M6 3h7l5 5v13H6V3z" stroke="var(--accent)" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 11h6M9 15h6" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </div>
+          <div class="fchip-title">מלכים</div>
+          <div class="fchip-sub">מלכים א׳ פרק א׳</div>
+        </div>
+        <div class="fchip" onclick="quickSearch('שמואל א יז')">
+          <span class="fchip-dot" style="background:var(--green)"></span>
+          <div class="fchip-icon" style="background:rgba(63,191,143,0.18)">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v6c0 5-3 8-7 9-4-1-7-4-7-9V6l7-3z" stroke="var(--green)" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="fchip-title">שמואל</div>
+          <div class="fchip-sub">דוד וגוליית · פרק י״ז</div>
+        </div>
+        <div class="fchip" onclick="quickSearch('תהילים כג')">
+          <span class="fchip-dot" style="background:var(--blue)"></span>
+          <div class="fchip-icon" style="background:rgba(78,143,232,0.18)">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 20s-7-4.4-7-9.5C5 7 7.2 5 9.8 5c1 0 2 .5 2.2 1.3C12.2 5.5 13.2 5 14.2 5 16.8 5 19 7 19 10.5 19 15.6 12 20 12 20z" stroke="var(--blue)" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="fchip-title">תהילים</div>
+          <div class="fchip-sub">ה' רועי · פרק כ״ג</div>
+        </div>
+      </div>
+
+      <div class="footnote">הטקסט מובא בזמן אמת מתוך ספריית ספריא (Sefaria) — אפשר לחפש כל פרק בתנ״ך.</div>
     </div>
-    <div id="resumeChipWrap"></div>
-    <div class="chip-label">או התחילו מכאן</div>
-    <div class="chips">
-      <div class="chip" onclick="quickSearch('בראשית א')">בראשית א׳ — בריאת העולם</div>
-      <div class="chip" onclick="quickSearch('שמות כ')">שמות כ׳ — עשרת הדיברות</div>
-      <div class="chip" onclick="quickSearch('שמואל א יז')">שמואל א יז׳ — דוד וגוליית</div>
-      <div class="chip" onclick="quickSearch('תהילים כג')">תהילים כ״ג</div>
-      <div class="chip" onclick="quickSearch('יונה ב')">יונה ב׳ — במעי הדג</div>
+
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="focusSearch()">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        חיפוש
+      </div>
+      <div class="nav-item active" onclick="goHome()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1v-9z" stroke="#1a1006" stroke-width="2" stroke-linejoin="round"/></svg>
+        בית
+      </div>
+      <div class="nav-item" onclick="showHelp()">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="2"/><path d="M4.5 20c1-3.6 4-5.4 7.5-5.4s6.5 1.8 7.5 5.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        אני
+      </div>
     </div>
-    <div class="footnote">הטקסט מובא בזמן אמת מתוך ספריית ספריא (Sefaria) — אפשר לחפש כל פרק בתנ״ך.</div>
   </div>
 
   <!-- RESULT -->
@@ -139,12 +311,75 @@
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       חיפוש אחר
     </button>
-    <div id="resultBody"></div>
+    <div class="screen-scroll">
+      <div class="result-body" id="resultBody"></div>
+    </div>
+  </div>
+
+  <!-- DUEL — "תפסו את השקרן" social game (demo/preview, see brief §9) -->
+  <div class="fr" id="f-duel">
+    <div class="duel-wrap">
+      <button class="duel-close" onclick="closeDuel()">✕ סגירה</button>
+      <div id="duelBody"></div>
+    </div>
   </div>
 
 </div>
 
 <script>
+  /* ===== Backend wiring =====
+     Leave these empty until the Cloudflare Worker (bibleflow_worker.js) is
+     deployed. While empty, the app honestly falls back to the "בקרוב" cards
+     and the local demo data — it never pretends to be connected. Fill in
+     the real Worker URL once deployed, e.g. 'https://bibleflow.YOURNAME.workers.dev' */
+  const AI_BACKEND_URL = 'https://wandering-fire-fc82.liormils.workers.dev';
+  const DUEL_BACKEND_URL = 'https://wandering-fire-fc82.liormils.workers.dev';
+
+  /* ===== Real multiplayer sync for "תפסו את השקרן" =====
+     Leave FIREBASE_CONFIG null until a Firebase project (Realtime Database,
+     free Spark plan) is created. While null, the duel game runs exactly like
+     before — a single-device preview with a "תצוגה מקדימה" note — it never
+     fakes a multi-device connection. Once filled in, a room code actually
+     connects every phone that opens the share link: same cards, same timer,
+     real per-player picks, real speed-based leaderboard. See the brief for
+     the exact setup steps. Example shape once you have a project:
+     const FIREBASE_CONFIG = { apiKey:"...", databaseURL:"https://YOUR-PROJECT-default-rtdb.firebaseio.com" }; */
+  const FIREBASE_CONFIG = null;
+  let fbDb = null;
+  let fbLoadPromise = null;
+  function loadFirebaseIfConfigured(){
+    if(!FIREBASE_CONFIG) return Promise.resolve(false);
+    if(fbDb) return Promise.resolve(true);
+    if(fbLoadPromise) return fbLoadPromise;
+    fbLoadPromise = new Promise((resolve) => {
+      const s1 = document.createElement('script');
+      s1.src = 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js';
+      s1.onload = () => {
+        const s2 = document.createElement('script');
+        s2.src = 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js';
+        s2.onload = () => {
+          try{
+            firebase.initializeApp(FIREBASE_CONFIG);
+            fbDb = firebase.database();
+            resolve(true);
+          }catch(e){ resolve(false); }
+        };
+        s2.onerror = () => resolve(false);
+        document.head.appendChild(s2);
+      };
+      s1.onerror = () => resolve(false);
+      document.head.appendChild(s1);
+    });
+    return fbLoadPromise;
+  }
+  function getPlayerId(){
+    let id = localStorage.getItem('bf_player_id');
+    if(!id){ id = 'p_' + Math.random().toString(36).slice(2, 10); localStorage.setItem('bf_player_id', id); }
+    return id;
+  }
+  function getPlayerName(){ return localStorage.getItem('bf_player_name') || ''; }
+  function setPlayerName(n){ localStorage.setItem('bf_player_name', n); }
+
   /* ===== Hebrew book name → Sefaria API ref slug ===== */
   const BOOK_MAP = {
     "בראשית":"Genesis", "שמות":"Exodus", "ויקרא":"Leviticus", "במדבר":"Numbers", "דברים":"Deuteronomy",
@@ -162,6 +397,26 @@
   };
 
   const GEMATRIA = {"א":1,"ב":2,"ג":3,"ד":4,"ה":5,"ו":6,"ז":7,"ח":8,"ט":9,"י":10,"כ":20,"ל":30,"מ":40,"נ":50,"ס":60,"ע":70,"פ":80,"צ":90,"ק":100,"ר":200,"ש":300,"ת":400};
+
+  /* ===== Canonical Tanakh order + chapter counts =====
+     Used for "הפתיעו אותי" (random chapter) and "לפרק הבא" (next chapter).
+     Standard Masoretic chapter division — matches Sefaria's numbering. */
+  const BOOK_ORDER = [
+    "בראשית","שמות","ויקרא","במדבר","דברים",
+    "יהושע","שופטים","שמואל א","שמואל ב","מלכים א","מלכים ב",
+    "ישעיהו","ירמיהו","יחזקאל",
+    "הושע","יואל","עמוס","עובדיה","יונה","מיכה","נחום","חבקוק","צפניה","חגי","זכריה","מלאכי",
+    "תהילים","משלי","איוב","שיר השירים","רות","איכה","קהלת","אסתר","דניאל","עזרא","נחמיה",
+    "דברי הימים א","דברי הימים ב"
+  ];
+  const CHAPTER_COUNTS = {
+    "בראשית":50,"שמות":40,"ויקרא":27,"במדבר":36,"דברים":34,
+    "יהושע":24,"שופטים":21,"שמואל א":31,"שמואל ב":24,"מלכים א":22,"מלכים ב":25,
+    "ישעיהו":66,"ירמיהו":52,"יחזקאל":48,
+    "הושע":14,"יואל":4,"עמוס":9,"עובדיה":1,"יונה":4,"מיכה":7,"נחום":3,"חבקוק":3,"צפניה":3,"חגי":2,"זכריה":14,"מלאכי":3,
+    "תהילים":150,"משלי":31,"איוב":42,"שיר השירים":8,"רות":4,"איכה":5,"קהלת":12,"אסתר":10,"דניאל":12,"עזרא":10,"נחמיה":13,
+    "דברי הימים א":29,"דברי הימים ב":36
+  };
 
   function normalize(str){
     return str.replace(/[״"׳']/g,'').replace(/\s+/g,' ').trim();
@@ -195,9 +450,17 @@
     document.getElementById('f-' + t).classList.add('on');
   }
   function goHome(){
+    stopRequested = true;
     window.speechSynthesis && window.speechSynthesis.cancel();
     goTo('search');
-    renderResumeChip();
+    renderResumeBanner();
+  }
+  function focusSearch(){
+    goHome();
+    setTimeout(()=> document.getElementById('searchInput').focus(), 50);
+  }
+  function showHelp(){
+    alert('הקלידו שם ספר ואז מספר פרק, למשל: "שמואל א יז" או "בראשית א". אפשר גם ללחוץ על אחת מהכרטיסיות למטה כדי להתחיל מיד.');
   }
 
   function quickSearch(text){
@@ -209,12 +472,17 @@
     const raw = document.getElementById('searchInput').value;
     if(!raw.trim()) return;
     const parsed = parseQuery(raw);
-    goTo('result');
-    const body = document.getElementById('resultBody');
     if(!parsed){
-      body.innerHTML = '<div class="state-msg">לא זיהינו את הפרק הזה 🙁<br>נסו לכתוב בפורמט: <b>שם הספר</b> ואז <b>מספר הפרק</b><br>לדוגמה: "שמואל א יז" או "בראשית א"</div>';
+      goTo('result');
+      document.getElementById('resultBody').innerHTML = '<div class="state-msg">לא זיהינו את הפרק הזה.<br>נסו לכתוב בפורמט: <b>שם הספר</b> ואז <b>מספר הפרק</b><br>לדוגמה: "שמואל א יז" או "בראשית א"</div>';
       return;
     }
+    await loadChapterByParsed(parsed);
+  }
+
+  async function loadChapterByParsed(parsed){
+    goTo('result');
+    const body = document.getElementById('resultBody');
     body.innerHTML = '<div class="state-msg"><span class="pulse-dot"></span>מחפש בתנ״ך...</div>';
     try{
       const url = `https://www.sefaria.org/api/texts/${parsed.bookSlug}.${parsed.chapter}?lang=he&context=0`;
@@ -226,14 +494,42 @@
       renderResult(parsed, data, verses);
       saveLastSearch(parsed, data);
     }catch(e){
-      body.innerHTML = '<div class="state-msg">לא הצלחנו למצוא את הפרק הזה כרגע 🙁<br>ודאו שמספר הפרק קיים בספר הזה ונסו שוב.</div>';
+      body.innerHTML = '<div class="state-msg">לא הצלחנו למצוא את הפרק הזה כרגע.<br>ודאו שמספר הפרק קיים בספר הזה ונסו שוב.</div>';
     }
   }
 
+  function surpriseMe(){
+    const bookHe = BOOK_ORDER[Math.floor(Math.random() * BOOK_ORDER.length)];
+    const maxCh = CHAPTER_COUNTS[bookHe] || 1;
+    const chapter = 1 + Math.floor(Math.random() * maxCh);
+    const bookSlug = BOOK_MAP[bookHe];
+    loadChapterByParsed({ bookHe, bookSlug, chapter });
+  }
+
+  function nextChapter(){
+    if(!currentParsed) return;
+    const idx = BOOK_ORDER.indexOf(currentParsed.bookHe);
+    if(idx === -1) return;
+    const maxCh = CHAPTER_COUNTS[currentParsed.bookHe] || currentParsed.chapter;
+    let nextBookHe = currentParsed.bookHe;
+    let nextCh = currentParsed.chapter + 1;
+    if(nextCh > maxCh){
+      const nextIdx = (idx + 1) % BOOK_ORDER.length; // wraps from Chronicles II back to Genesis
+      nextBookHe = BOOK_ORDER[nextIdx];
+      nextCh = 1;
+    }
+    const bookSlug = BOOK_MAP[nextBookHe];
+    loadChapterByParsed({ bookHe: nextBookHe, bookSlug, chapter: nextCh });
+  }
+
   let currentVerses = [];
+  let currentParsed = null;
+  let currentHeRef = '';
   function renderResult(parsed, data, verses){
     currentVerses = verses;
+    currentParsed = parsed;
     const heRef = data.heRef || (parsed.bookHe + ' ' + parsed.chapter);
+    currentHeRef = heRef;
     const body = document.getElementById('resultBody');
     body.innerHTML = `
       <div class="result-ref">${heRef}</div>
@@ -244,16 +540,19 @@
         <span class="listen-label" id="listenLabel">הקשיבו לפרק</span>
         <div class="listen-bars" id="listenBars"><span></span><span></span><span></span><span></span></div>
       </div>
-      <div class="ai-row">
-        <div class="ai-card">
-          <div class="ai-card-title">הסבר בשפה פשוטה <span class="soon-badge">בקרוב</span></div>
-          <div class="ai-card-sub">כשיחובר מפתח AI, כאן יופיע הסבר של הפרק בשפה יומיומית, לא תנ״כית.</div>
-        </div>
-        <div class="ai-card">
-          <div class="ai-card-title">המחשה חזותית <span class="soon-badge">בקרוב</span></div>
-          <div class="ai-card-sub">כשיחובר מפתח AI, כאן תופיע תמונה שממחישה את הרגע המרכזי בפרק.</div>
-        </div>
-      </div>
+      <div class="voice-diag" id="voiceDiag"></div>
+      <div class="ai-row" id="aiEnrichmentWrap"></div>
+      <button class="duel-entry-btn" onclick="openDuel()">
+        <span class="duel-entry-icon"><svg viewBox="0 0 24 24" fill="none" width="20" height="20"><path d="M4 20L15 9M15 9l-2-2 2-2 4 4-2 2-2-2zM4 20l2-5 3 3-5 2z" stroke="#E9C77B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="duel-entry-text">
+          <span class="duel-entry-title">דו-קרב פייק-ניוז</span>
+          <span class="duel-entry-sub">תפסו את השקרן — משחק קבוצתי על הפרק הזה (תצוגה מקדימה)</span>
+        </span>
+      </button>
+      <button class="next-chapter-link" onclick="nextChapter()">
+        לפרק הבא
+        <svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M9 6l6 6-6 6" stroke="var(--dim2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
     `;
     const wrap = document.getElementById('versesWrap');
     verses.forEach((v, i) => {
@@ -263,13 +562,106 @@
       el.innerHTML = `<span class="vnum">${i+1}</span>${stripHtml(v)}`;
       wrap.appendChild(el);
     });
+    renderVoiceDiag();
+    loadAIEnrichment(parsed, heRef);
+  }
+
+  // ===== AI enrichment (explanation + illustration) =====
+  // Honesty principle: if no backend URL is configured, or the call fails,
+  // show the transparent "בקרוב" cards — never a fake/simulated result.
+  function aiIconExplain(){
+    return '<svg viewBox="0 0 24 24" fill="none"><path d="M12 3l2 5 5 .5-3.8 3.4 1.1 5.1L12 14.7 7.7 17l1.1-5.1L5 8.5 10 8l2-5z" stroke="var(--parch)" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+  }
+  function aiIconImage(){
+    return '<svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="14" rx="2" stroke="var(--parch)" stroke-width="1.6"/><circle cx="9" cy="10" r="1.5" stroke="var(--parch)" stroke-width="1.4"/><path d="M5 16l4-3 3 2 4-4 3 3" stroke="var(--parch)" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+  }
+  function renderAIFallback(){
+    const wrap = document.getElementById('aiEnrichmentWrap');
+    if(!wrap) return;
+    wrap.innerHTML = `
+      <div class="ai-card">
+        <div class="ai-card-icon">${aiIconExplain()}</div>
+        <div>
+          <div class="ai-card-title">הסבר בשפה פשוטה <span class="soon-badge">בקרוב</span></div>
+          <div class="ai-card-sub">כשיחובר מפתח AI, כאן יופיע הסבר של הפרק בשפה יומיומית, לא תנ״כית.</div>
+        </div>
+      </div>
+      <div class="ai-card">
+        <div class="ai-card-icon">${aiIconImage()}</div>
+        <div>
+          <div class="ai-card-title">המחשה חזותית <span class="soon-badge">בקרוב</span></div>
+          <div class="ai-card-sub">כשיחובר מפתח AI, כאן תופיע תמונה שממחישה את הרגע המרכזי בפרק.</div>
+        </div>
+      </div>
+    `;
+  }
+  function renderAISkeleton(){
+    const wrap = document.getElementById('aiEnrichmentWrap');
+    if(!wrap) return;
+    wrap.innerHTML = `
+      <div class="ai-card">
+        <div style="width:100%">
+          <div class="skel skel-title"></div>
+          <div class="skel skel-line"></div>
+          <div class="skel skel-line"></div>
+        </div>
+      </div>
+      <div class="ai-card">
+        <div style="width:100%">
+          <div class="skel skel-image"></div>
+          <div class="skel skel-title"></div>
+        </div>
+      </div>
+    `;
+  }
+  async function loadAIEnrichment(parsed, heRef){
+    if(!AI_BACKEND_URL){ renderAIFallback(); return; }
+    renderAISkeleton();
+    try{
+      const url = `${AI_BACKEND_URL}/chapter-ai?book=${encodeURIComponent(parsed.bookSlug)}&chapter=${encodeURIComponent(parsed.chapter)}&heRef=${encodeURIComponent(heRef)}`;
+      const res = await fetch(url);
+      if(!res.ok) throw new Error('backend error ' + res.status);
+      const data = await res.json();
+      const wrap = document.getElementById('aiEnrichmentWrap');
+      if(!wrap) return;
+      wrap.innerHTML = `
+        <div class="ai-card">
+          <div class="ai-card-icon">${aiIconExplain()}</div>
+          <div>
+            <div class="ai-card-title">הסבר בשפה פשוטה</div>
+            <div class="ai-card-text">${data.explanation ? stripHtml(data.explanation) : 'לא התקבל הסבר כרגע.'}</div>
+          </div>
+        </div>
+        <div class="ai-card">
+          <div style="width:100%">
+            ${data.imageUrl ? `<img class="ai-card-image" src="${data.imageUrl}" alt="המחשה לפרק">` : ''}
+            <div class="ai-card-title">המחשה חזותית</div>
+            ${!data.imageUrl ? '<div class="ai-card-sub">לא התקבלה תמונה כרגע.</div>' : ''}
+          </div>
+        </div>
+      `;
+    } catch(err){
+      renderAIFallback();
+    }
+  }
+
+  function renderVoiceDiag(){
+    const el = document.getElementById('voiceDiag');
+    if(!el) return;
+    if(!('speechSynthesis' in window)){ el.textContent = 'הדפדפן הזה לא תומך בהקראה קולית כלל.'; return; }
+    const v = heVoice || pickHebrewVoice();
+    if(v){
+      el.textContent = `קול פעיל: ${v.name} (${v.lang})`;
+    } else {
+      el.textContent = 'לא נמצא קול עברי מותקן בדפדפן/מחשב הזה — זו כנראה הסיבה שההקראה נשמעת זרה. יש להתקין קול עברי (במאק: הגדרות מערכת ← נגישות ← תוכן מדובר ← ניהול קולות ← עברית).';
+    }
   }
 
   function playIcon(){
-    return '<svg viewBox="0 0 24 24" fill="none"><path d="M8 5v14l11-7L8 5z" fill="#12100c"/></svg>';
+    return '<svg viewBox="0 0 24 24" fill="none"><path d="M8 5v14l11-7L8 5z" fill="#1a1006"/></svg>';
   }
   function pauseIcon(){
-    return '<svg viewBox="0 0 24 24" fill="none"><rect x="6" y="5" width="4" height="14" fill="#12100c"/><rect x="14" y="5" width="4" height="14" fill="#12100c"/></svg>';
+    return '<svg viewBox="0 0 24 24" fill="none"><rect x="6" y="5" width="4" height="14" fill="#1a1006"/><rect x="14" y="5" width="4" height="14" fill="#1a1006"/></svg>';
   }
 
   let isReading = false;
@@ -279,7 +671,6 @@
   function pickHebrewVoice(){
     const voices = window.speechSynthesis.getVoices();
     if(!voices.length) return null;
-    // Prefer an explicit he-IL/he_IL voice; fall back to anything tagged Hebrew.
     const exact = voices.find(v => /^he[-_]il$/i.test(v.lang));
     if(exact) return exact;
     const heLang = voices.find(v => /^he/i.test(v.lang));
@@ -289,20 +680,19 @@
   }
   if('speechSynthesis' in window){
     heVoice = pickHebrewVoice();
-    window.speechSynthesis.onvoiceschanged = () => { heVoice = pickHebrewVoice(); voicesReady = true; };
+    window.speechSynthesis.onvoiceschanged = () => { heVoice = pickHebrewVoice(); voicesReady = true; renderVoiceDiag(); };
   }
 
-  // Strip cantillation marks (trope, U+0591–U+05AF) which confuse most TTS
-  // engines, while keeping nikud (vowel points, U+05B0–U+05C7) — nikud is
-  // what makes biblical Hebrew pronounceable correctly at all.
   function cleanForSpeech(str){
     return str.replace(/[֑-֯]/g, '').replace(/[־׀]/g, ' ').replace(/\s+/g,' ').trim();
   }
 
   let speakQueue = [];
   let speakIndex = 0;
+  let stopRequested = false;
 
   function speakNext(){
+    if(stopRequested){ return; }
     if(speakIndex >= speakQueue.length){
       finishReading();
       return;
@@ -310,18 +700,21 @@
     const utter = new SpeechSynthesisUtterance(speakQueue[speakIndex]);
     utter.lang = 'he-IL';
     if(heVoice) utter.voice = heVoice;
-    utter.rate = 0.85;
+    utter.rate = 0.68;
     utter.pitch = 1;
-    utter.onend = () => { speakIndex++; speakNext(); };
-    utter.onerror = () => { speakIndex++; speakNext(); };
+    utter.onend = () => { if(stopRequested) return; speakIndex++; speakNext(); };
+    utter.onerror = () => { if(stopRequested) return; speakIndex++; speakNext(); };
     window.speechSynthesis.speak(utter);
   }
 
   function finishReading(){
     isReading = false;
-    document.getElementById('listenBtn').innerHTML = playIcon();
-    document.getElementById('listenLabel').textContent = 'הקשיבו לפרק';
-    document.getElementById('listenBars').classList.remove('playing');
+    const btn = document.getElementById('listenBtn');
+    const label = document.getElementById('listenLabel');
+    const bars = document.getElementById('listenBars');
+    if(btn) btn.innerHTML = playIcon();
+    if(label) label.textContent = 'הקשיבו לפרק';
+    if(bars) bars.classList.remove('playing');
   }
 
   function toggleListen(){
@@ -330,11 +723,13 @@
     const label = document.getElementById('listenLabel');
     const bars = document.getElementById('listenBars');
     if(isReading){
+      stopRequested = true;
       window.speechSynthesis.cancel();
       finishReading();
       return;
     }
     if(!heVoice) heVoice = pickHebrewVoice();
+    stopRequested = false;
     speakQueue = currentVerses.map(v => cleanForSpeech(stripHtml(v))).filter(Boolean);
     speakIndex = 0;
     window.speechSynthesis.cancel();
@@ -351,17 +746,417 @@
       heRef: data.heRef || (parsed.bookHe + ' ' + parsed.chapter)
     }));
   }
-  function renderResumeChip(){
-    const wrap = document.getElementById('resumeChipWrap');
+  function renderResumeBanner(){
+    const wrap = document.getElementById('resumeBannerWrap');
     const saved = localStorage.getItem('bf_last_search');
     if(!saved){ wrap.innerHTML = ''; return; }
     try{
       const s = JSON.parse(saved);
-      wrap.innerHTML = `<div class="chips" style="margin-bottom:4px;"><div class="chip resume" onclick="quickSearch('${s.raw}')">↻ המשך מ: ${s.heRef}</div></div>`;
+      wrap.innerHTML = `
+        <div class="resume-banner" onclick="quickSearch('${s.raw}')">
+          <div class="resume-banner-text">
+            <div class="resume-banner-tag">המשך מאיפה שעצרת</div>
+            <div class="resume-banner-title">${s.heRef}</div>
+          </div>
+          <div class="resume-banner-icon">
+            <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M8 5v14l11-7L8 5z" fill="#1a1006"/></svg>
+          </div>
+        </div>`;
     }catch(e){ wrap.innerHTML = ''; }
   }
 
-  renderResumeChip();
+  renderResumeBanner();
+
+  // ============================================================
+  // "תפסו את השקרן" (The Impostor / Debunker)
+  // Two modes, chosen automatically:
+  //   'local' — FIREBASE_CONFIG is empty: single-device preview (as before).
+  //   'sync'  — FIREBASE_CONFIG is set: real cross-device room via Firebase
+  //             Realtime Database. Claims generation already goes through
+  //             DUEL_BACKEND_URL when configured (see startDuelRound below).
+  // See BibleFlow_Development_Brief_Sunday_Kickoff.md §9/§11.
+  // ============================================================
+
+  // Example of the exact JSON shape the AI backend will eventually return —
+  // kept here as living documentation next to the demo that consumes it.
+  const DUEL_DEMO_DATA = {
+    book: "שמואל א",
+    chapter: 17,
+    claims: [
+      {
+        text: "גוליית התייצב מול מחנה ישראל במשך ארבעים יום ברציפות, בוקר וערב.",
+        isImpostor: false,
+        verseNum: 16,
+        verseText: "וַיִּגַּשׁ הַפְּלִשְׁתִּי הַשְׁכֵּם וְהַעֲרֵב וַיִּתְיַצֵּב אַרְבָּעִים יוֹם",
+        note: "הפסוק אומר במפורש 'ארבעים יום', בוקר וערב."
+      },
+      {
+        text: "דוד בחר בקפידה חמש אבנים חלקות מתוך הנחל לפני שניגש לקרב.",
+        isImpostor: false,
+        verseNum: 40,
+        verseText: "וַיִּבְחַר־לוֹ חֲמִשָּׁה חַלֻּקֵי־אֲבָנִים מִן־הַנַּחַל",
+        note: "המספר המדויק — חמש אבנים — מופיע בפסוק עצמו."
+      },
+      {
+        text: "שאול הציע לדוד את שריונו וחרבו, אך דוד הסיר אותם כי לא היה רגיל בהם.",
+        isImpostor: false,
+        verseNum: 39,
+        verseText: "וַיֹּאמֶר דָּוִד אֶל־שָׁאוּל לֹא אוּכַל לָלֶכֶת בָּאֵלֶּה כִּי לֹא נִסִּיתִי וַיְסִרֵם דָּוִד מֵעָלָיו",
+        note: "דוד עצמו אומר שלא התנסה בציוד הזה ומסיר אותו."
+      },
+      {
+        text: "דוד יצא לקרב לבוש בשריון הנחושת המלא של שאול, וניצח בקרב פנים אל פנים.",
+        isImpostor: true,
+        verseNum: 39,
+        verseText: "וַיֹּאמֶר דָּוִד אֶל־שָׁאוּל לֹא אוּכַל לָלֶכֶת בָּאֵלֶּה כִּי לֹא נִסִּיתִי וַיְסִרֵם דָּוִד מֵעָלָיו",
+        note: "בדיוק ההפך: דוד הסיר את השריון ונלחם בלעדיו, עם קלע בלבד."
+      }
+    ]
+  };
+
+  let duelState = { mode:'local', code:null, roomRef:null, roomCb:null, isHost:false, room:null,
+    cards: [], selectedIndex: null, timerHandle: null, secondsLeft: 30, revealed: false, startedAt: null, stageLabel:'' };
+
+  function resetDuelState(){
+    if(duelState.roomRef && duelState.roomCb) duelState.roomRef.off('value', duelState.roomCb);
+    if(duelState.timerHandle) clearInterval(duelState.timerHandle);
+    duelState = { mode:'local', code:null, roomRef:null, roomCb:null, isHost:false, room:null,
+      cards: [], selectedIndex: null, timerHandle: null, secondsLeft: 30, revealed: false, startedAt: null, stageLabel:'' };
+  }
+
+  function openDuel(){
+    goTo('duel');
+    resetDuelState();
+    const urlCode = new URLSearchParams(window.location.search).get('duel');
+    if(FIREBASE_CONFIG && urlCode){
+      joinDuelRoom(urlCode);
+    } else {
+      renderDuelSetup();
+    }
+  }
+  function closeDuel(){
+    resetDuelState();
+    goTo('result');
+  }
+
+  async function renderDuelSetup(){
+    const code = String(Math.floor(1000 + Math.random()*9000));
+    const shareUrl = window.location.href.split('?')[0] + '?duel=' + code;
+    duelState.code = code;
+    duelState.isHost = true;
+    duelState.mode = FIREBASE_CONFIG ? 'sync' : 'local';
+    document.getElementById('duelBody').innerHTML = `
+      <div class="duel-title">דו-קרב פייק-ניוז</div>
+      <div class="duel-sub">4 טענות על הפרק. אחת מהן שקר. מי יתפוס את השקרן?</div>
+      <div class="duel-code-box">
+        <div class="duel-code">${code}</div>
+        <div class="duel-code-label">קוד החדר — שתפו עם החברים</div>
+      </div>
+      <button class="duel-share-btn" onclick="shareDuel('${shareUrl}', '${code}')">שיתוף בוואטסאפ</button>
+      <button class="duel-start-btn" onclick="startDuelRound()">התחילו סבב${duelState.mode === 'local' ? ' (תצוגה מקדימה)' : ''}</button>
+      <div class="duel-note" id="duelLobbyNote">${duelState.mode === 'sync' ? 'מתחברים לחדר...' : 'תצוגה מקדימה על מכשיר אחד — סנכרון אמיתי בין כמה טלפונים דורש תשתית נוספת (ראו הבריף).'}</div>
+    `;
+    if(duelState.mode === 'sync'){
+      const ok = await loadFirebaseIfConfigured();
+      if(!ok){
+        duelState.mode = 'local';
+        const note = document.getElementById('duelLobbyNote');
+        if(note) note.textContent = 'לא הצלחנו להתחבר לשרת המשחק — ממשיכים בתצוגה מקדימה על מכשיר אחד.';
+        return;
+      }
+      const roomRef = fbDb.ref('duels/' + code);
+      await roomRef.set({ status:'lobby', createdAt: firebase.database.ServerValue.TIMESTAMP, heRef: currentHeRef || '', players:{} });
+      attachRoomListener(roomRef);
+    }
+  }
+
+  async function joinDuelRoom(code){
+    duelState.code = code;
+    duelState.isHost = false;
+    duelState.mode = 'sync';
+    document.getElementById('duelBody').innerHTML = '<div class="duel-note">מתחברים לחדר...</div>';
+    const ok = await loadFirebaseIfConfigured();
+    if(!ok){
+      document.getElementById('duelBody').innerHTML = '<div class="state-msg">לא הצלחנו להתחבר למשחק כרגע.</div>';
+      return;
+    }
+    const roomRef = fbDb.ref('duels/' + code);
+    const snap = await roomRef.once('value');
+    if(!snap.exists()){
+      document.getElementById('duelBody').innerHTML = '<div class="state-msg">לא מצאנו חדר עם הקוד הזה. ודאו שהקוד נכון.</div>';
+      return;
+    }
+    const name = getPlayerName();
+    if(!name){
+      document.getElementById('duelBody').innerHTML = `
+        <div class="duel-title">איך קוראים לך?</div>
+        <div class="duel-sub">השם יופיע רק לחברים במשחק הזה.</div>
+        <input class="duel-name-input" id="duelNameInput" type="text" placeholder="השם שלך" maxlength="16">
+        <button class="duel-start-btn" onclick="confirmJoinName('${code}')">הצטרפו למשחק</button>
+      `;
+      return;
+    }
+    await roomRef.child('players/' + getPlayerId()).set({ name, joinedAt: firebase.database.ServerValue.TIMESTAMP, pick:null, pickedAt:null });
+    attachRoomListener(roomRef);
+  }
+
+  async function confirmJoinName(code){
+    const input = document.getElementById('duelNameInput');
+    setPlayerName((input && input.value.trim()) || 'שחקן');
+    await joinDuelRoom(code);
+  }
+
+  function attachRoomListener(roomRef){
+    const cb = (snap) => {
+      const val = snap.val();
+      if(!val) return;
+      duelState.room = val;
+      duelState.roomRef = roomRef;
+      if(val.status === 'active'){
+        duelState.cards = (val.claims || []).map((c,i)=>({...c, origIndex:i}));
+        duelState.stageLabel = val.stageLabel || val.heRef || '';
+        duelState.startedAt = val.startedAt || Date.now();
+        duelState.revealed = false;
+        duelState.selectedIndex = null;
+        renderDuelCards();
+        startDuelTimer();
+      } else if(val.status === 'reveal'){
+        duelState.cards = (val.claims || []).map((c,i)=>({...c, origIndex:i}));
+        duelState.stageLabel = val.stageLabel || val.heRef || '';
+        if(!duelState.revealed) revealDuel();
+      } else {
+        renderDuelLobby();
+      }
+    };
+    roomRef.on('value', cb);
+    duelState.roomRef = roomRef;
+    duelState.roomCb = cb;
+  }
+
+  function renderDuelLobby(){
+    const room = duelState.room || {};
+    const names = Object.values(room.players || {}).map(p => p.name).filter(Boolean);
+    if(duelState.isHost){
+      const shareUrl = window.location.href.split('?')[0] + '?duel=' + duelState.code;
+      document.getElementById('duelBody').innerHTML = `
+        <div class="duel-title">דו-קרב פייק-ניוז</div>
+        <div class="duel-sub">4 טענות על הפרק. אחת מהן שקר. מי יתפוס את השקרן?</div>
+        <div class="duel-code-box">
+          <div class="duel-code">${duelState.code}</div>
+          <div class="duel-code-label">קוד החדר — שתפו עם החברים</div>
+        </div>
+        <button class="duel-share-btn" onclick="shareDuel('${shareUrl}', '${duelState.code}')">שיתוף בוואטסאפ</button>
+        <button class="duel-start-btn" onclick="startDuelRound()">התחילו סבב</button>
+        <div class="duel-note">${names.length ? 'הצטרפו: ' + names.join(', ') : 'ממתין לחברים שיצטרפו...'}</div>
+      `;
+    } else {
+      document.getElementById('duelBody').innerHTML = `
+        <div class="duel-title">מחכים שהמארח יתחיל...</div>
+        <div class="duel-sub">הצטרפתם בתור ${getPlayerName()}.</div>
+        <div class="duel-note">${names.length ? 'במשחק: ' + names.join(', ') : ''}</div>
+      `;
+    }
+  }
+
+  function shareDuel(url, code){
+    const text = encodeURIComponent(`בואו נשחק "תפסו את השקרן" ב-BibleFlow! קוד החדר: ${code}\n${url}`);
+    window.open('https://wa.me/?text=' + text, '_blank');
+  }
+
+  async function startDuelRound(){
+    document.getElementById('duelBody').innerHTML = `<div class="duel-note">טוען טענות...</div>`;
+    let claimsSource = DUEL_DEMO_DATA;
+    let stageLabel = currentHeRef || 'שמואל א׳ פרק י״ז';
+    if(DUEL_BACKEND_URL && currentParsed && currentVerses.length){
+      try{
+        const res = await fetch(`${DUEL_BACKEND_URL}/duel-claims`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            book: currentParsed.bookSlug,
+            chapter: currentParsed.chapter,
+            heRef: currentHeRef,
+            verses: currentVerses.map(v => stripHtml(v))
+          })
+        });
+        if(!res.ok) throw new Error('backend error ' + res.status);
+        const data = await res.json();
+        if(Array.isArray(data.claims) && data.claims.length === 4){
+          claimsSource = data;
+        }
+      } catch(err){
+        // Honesty principle: fall back to the local demo content, never fake a result.
+        claimsSource = DUEL_DEMO_DATA;
+      }
+    }
+    const shuffled = claimsSource.claims.map((c,i)=>({...c, origIndex:i})).sort(()=>Math.random()-0.5);
+
+    if(duelState.mode === 'sync' && duelState.roomRef){
+      const playersSnap = await duelState.roomRef.child('players').once('value');
+      const resets = {};
+      playersSnap.forEach(ch => { resets['players/' + ch.key + '/pick'] = null; resets['players/' + ch.key + '/pickedAt'] = null; });
+      await duelState.roomRef.update({
+        claims: shuffled, stageLabel, status: 'active',
+        startedAt: firebase.database.ServerValue.TIMESTAMP,
+        ...resets
+      });
+      // attachRoomListener's callback fires from this write and renders the cards for us.
+    } else {
+      duelState.cards = shuffled;
+      duelState.stageLabel = stageLabel;
+      duelState.selectedIndex = null;
+      duelState.revealed = false;
+      renderDuelCards();
+      startDuelTimer();
+    }
+  }
+
+  function renderDuelCards(){
+    const letters = ['א','ב','ג','ד'];
+    document.getElementById('duelBody').innerHTML = `
+      <div class="duel-stage-label">${duelState.stageLabel || 'שמואל א׳ פרק י״ז'}</div>
+      <div class="duel-title" style="font-size:18px;">מה מבין ארבעת אלה הוא השקר?</div>
+      <div class="duel-timer-row">
+        <div class="duel-timer-ring" id="duelTimerRing">30</div>
+      </div>
+      <div class="duel-cards" id="duelCards">
+        ${duelState.cards.map((c,i)=>`
+          <div class="duel-card" id="duelCard${i}" onclick="pickDuelCard(${i})">
+            <div class="duel-card-letter">${letters[i]}</div>
+            <div class="duel-card-text">${c.text}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="duel-note">${duelState.mode === 'sync' ? 'כל שחקן בוחר בסודיות במכשיר שלו — התוצאות מתאחדות אוטומטית.' : 'בגרסה הסופית: כל שחקן בוחר בסודיות במכשיר שלו, והתוצאות מתאחדות בשרת.'}</div>
+    `;
+  }
+
+  function startDuelTimer(){
+    if(duelState.timerHandle) clearInterval(duelState.timerHandle);
+    const ring = () => document.getElementById('duelTimerRing');
+    if(duelState.mode === 'sync' && duelState.startedAt){
+      const tick = () => {
+        const elapsed = Math.floor((Date.now() - duelState.startedAt) / 1000);
+        const left = Math.max(0, 30 - elapsed);
+        if(ring()) ring().textContent = left;
+        if(left <= 0){
+          clearInterval(duelState.timerHandle);
+          revealDuelSync();
+        }
+      };
+      tick();
+      duelState.timerHandle = setInterval(tick, 1000);
+    } else {
+      duelState.secondsLeft = 30;
+      duelState.timerHandle = setInterval(() => {
+        duelState.secondsLeft--;
+        if(ring()) ring().textContent = duelState.secondsLeft;
+        if(duelState.secondsLeft <= 0){
+          clearInterval(duelState.timerHandle);
+          revealDuel();
+        }
+      }, 1000);
+    }
+  }
+
+  function revealDuelSync(){
+    // Idempotent: whichever client's local timer hits zero first flips the
+    // shared room to "reveal" — the attached listener then renders results
+    // for every device from the same synced data.
+    if(duelState.roomRef) duelState.roomRef.update({ status: 'reveal' });
+  }
+
+  function pickDuelCard(i){
+    if(duelState.revealed) return;
+    duelState.selectedIndex = i;
+    document.querySelectorAll('.duel-card').forEach((el,idx)=> el.classList.toggle('selected', idx===i));
+    if(duelState.mode === 'sync' && duelState.roomRef){
+      duelState.roomRef.child('players/' + getPlayerId()).update({ pick: i, pickedAt: firebase.database.ServerValue.TIMESTAMP });
+    }
+  }
+
+  function buildDuelLeaderboard(players, impostorIdx, startedAt){
+    const rows = Object.values(players || {}).map(p => {
+      const picked = p.pick !== null && p.pick !== undefined;
+      const correct = picked && p.pick === impostorIdx;
+      const timeMs = (picked && p.pickedAt && startedAt) ? Math.max(0, p.pickedAt - startedAt) : null;
+      return {
+        name: p.name || 'שחקן', picked, correct, timeMs,
+        timeLabel: timeMs !== null ? (timeMs / 1000).toFixed(1) + ' שנ׳' : '—'
+      };
+    });
+    rows.sort((a,b) => {
+      if(a.correct !== b.correct) return a.correct ? -1 : 1;
+      if(a.timeMs === null) return 1;
+      if(b.timeMs === null) return -1;
+      return a.timeMs - b.timeMs;
+    });
+    return rows;
+  }
+
+  function revealDuel(){
+    if(duelState.revealed) return;
+    duelState.revealed = true;
+    if(duelState.timerHandle) clearInterval(duelState.timerHandle);
+    const impostorIdx = duelState.cards.findIndex(c => c.isImpostor);
+    const impostor = duelState.cards[impostorIdx];
+    const letters = ['א','ב','ג','ד'];
+    document.getElementById('duelBody').innerHTML = `
+      <div class="duel-stage-label">${duelState.stageLabel || 'שמואל א׳ פרק י״ז'}</div>
+      <div class="duel-title" style="font-size:18px;">התשובה נחשפת</div>
+      <div class="duel-cards" id="duelCards">
+        ${duelState.cards.map((c,i)=>`
+          <div class="duel-card ${i===impostorIdx ? 'wrong-impostor' : 'correct'}" id="duelCard${i}">
+            <div class="duel-card-letter">${letters[i]}</div>
+            <div class="duel-card-text">${c.text}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    const correct = duelState.selectedIndex === impostorIdx;
+    const resultLine = duelState.selectedIndex === null
+      ? 'לא הספקת לבחור בזמן.'
+      : (correct ? 'תפסת את השקרן! כל הכבוד.' : 'הפעם השקרן תפס אותך.');
+    const banner = document.createElement('div');
+    banner.className = 'duel-reveal-verse';
+    banner.innerHTML = `
+      <div class="duel-reveal-label">${resultLine} השקר היה:</div>
+      <div class="duel-card-text" style="padding-left:0; margin-bottom:10px;">${impostor.text}</div>
+      <div class="duel-reveal-label">הפסוק שמפריך את זה — פסוק ${impostor.verseNum}:</div>
+      <div class="duel-reveal-text">${impostor.verseText}</div>
+    `;
+    document.getElementById('duelCards').after(banner);
+
+    if(duelState.mode === 'sync' && duelState.room && duelState.room.players){
+      const board = buildDuelLeaderboard(duelState.room.players, impostorIdx, duelState.startedAt);
+      const boardEl = document.createElement('div');
+      boardEl.className = 'duel-leaderboard';
+      boardEl.innerHTML = `
+        <div class="duel-reveal-label">טבלת התוצאות של הסבב:</div>
+        ${board.map((p,i)=>`
+          <div class="duel-board-row">
+            <span class="duel-board-rank">${i+1}.</span>
+            <span class="duel-board-name">${p.name}</span>
+            <span class="duel-board-result">${p.correct ? '✓' : (p.picked ? '✗' : '—')}</span>
+            <span class="duel-board-time">${p.timeLabel}</span>
+          </div>
+        `).join('')}
+      `;
+      banner.after(boardEl);
+    }
+
+    const again = document.createElement('button');
+    again.className = 'duel-start-btn';
+    if(duelState.mode === 'sync' && !duelState.isHost){
+      again.textContent = 'ממתינים למארח לסבב חדש';
+      again.disabled = true;
+      again.style.opacity = '0.5';
+    } else {
+      again.textContent = 'סבב חדש';
+      again.onclick = startDuelRound;
+    }
+    document.getElementById('duelBody').appendChild(again);
+  }
 </script>
 
 </body>
