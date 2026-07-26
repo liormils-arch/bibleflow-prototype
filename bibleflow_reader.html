@@ -685,10 +685,24 @@
       if(n >= reel.length) return;
       const idx = n++;
       const im = new Image();
-      im.onload = () => { loaded[idx] = true; if(i === idx) show(idx); };
-      im.onerror = () => {}; // stays a placeholder — not fatal, caption still shows
+      let settled = false;
+      // Wait for THIS image to actually finish (success or fail) before
+      // starting the next one, plus a small buffer. Pollinations' free tier
+      // allows only one in-flight request per visitor IP — firing the next
+      // request on a blind timer (before the current one finished loading)
+      // could itself trigger a 429 on the client side if a single image
+      // takes longer than the timer to generate, which is what was silently
+      // stalling later frames. A 20s safety timeout guards against a request
+      // that never fires onload/onerror at all.
+      const proceed = () => {
+        if(settled) return;
+        settled = true;
+        reelLoadTimer = setTimeout(loadNext, 2500);
+      };
+      im.onload = () => { loaded[idx] = true; if(i === idx) show(idx); proceed(); };
+      im.onerror = () => { proceed(); }; // stays a placeholder — not fatal, caption still shows
       im.src = reel[idx].imageUrl;
-      reelLoadTimer = setTimeout(loadNext, 16000);
+      setTimeout(proceed, 20000);
     }
     loadNext();
   }
