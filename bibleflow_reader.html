@@ -223,6 +223,48 @@
 
   .duel-leaderboard{background:#111015; border-radius:14px; padding:14px 16px; margin-bottom:18px; border:1px solid rgba(233,199,123,0.15);}
   .duel-board-row{display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:13px; color:var(--parch);}
+
+  /* ============ INTERACTIVE LEARNING LAYER ============ */
+  .ir-wrap{display:flex; flex-direction:column; gap:12px; padding:0 20px; margin-bottom:14px;}
+  .ir-card{background:var(--card2); border:1px solid rgba(255,255,255,0.06); border-radius:16px; padding:14px 16px;}
+  .ir-title{font-size:13px; font-weight:700; color:var(--parch); margin-bottom:8px;}
+  .ir-sub{font-size:11px; color:var(--dim2); line-height:1.5; margin-bottom:10px;}
+
+  .impostor-option{padding:11px 12px; border-radius:12px; background:rgba(255,255,255,0.04); margin-bottom:8px; cursor:pointer; transition:background .15s, opacity .15s; font-size:13.5px; color:var(--parch); line-height:1.5; border:1px solid transparent;}
+  .impostor-option:last-child{margin-bottom:0;}
+  .impostor-option:active{transform:scale(0.99);}
+  .impostor-option.correct{background:rgba(63,191,143,0.16); border-color:rgba(63,191,143,0.4);}
+  .impostor-option.wrong-pick{background:rgba(230,90,80,0.14); border-color:rgba(230,90,80,0.35);}
+  .impostor-option.dim{opacity:0.45;}
+  .impostor-feedback{margin-top:10px; font-size:12.5px; color:var(--dim); line-height:1.6; background:rgba(255,255,255,0.03); padding:10px 12px; border-radius:10px;}
+
+  .order-tray{display:flex; gap:8px; overflow-x:auto; padding-bottom:6px; margin-bottom:10px;}
+  .order-tile{flex:0 0 auto; width:70px; height:70px; border-radius:10px; overflow:hidden; position:relative; background:rgba(255,255,255,0.05); cursor:pointer;}
+  .order-tile img{width:100%; height:100%; object-fit:cover; display:block;}
+  .order-tile.placed{opacity:0.25; pointer-events:none;}
+  .order-tile .tile-ph{width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--dim2);}
+  .order-slots{display:flex; flex-direction:column; gap:8px;}
+  .order-slot{display:flex; align-items:center; gap:10px; min-height:44px; border-radius:12px; background:rgba(255,255,255,0.03); border:1px dashed rgba(255,255,255,0.14); padding:6px 10px; cursor:pointer;}
+  .order-slot.filled{border-style:solid; border-color:rgba(255,255,255,0.1);}
+  .order-slot.correct-pos{border-color:rgba(63,191,143,0.5); background:rgba(63,191,143,0.08);}
+  .order-slot-num{font-size:11px; color:var(--dim2); font-weight:700; flex:0 0 auto; width:14px;}
+  .order-slot-thumb{width:32px; height:32px; border-radius:8px; overflow:hidden; flex:0 0 auto; background:rgba(255,255,255,0.06);}
+  .order-slot-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+  .order-slot-cap{font-size:12px; color:var(--parch); line-height:1.4; flex:1;}
+  .order-result{margin-top:10px; font-size:12.5px; color:var(--dim); text-align:center;}
+
+  .reflection-textarea{width:100%; min-height:64px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px 12px; color:var(--parch); font-family:'Heebo',sans-serif; font-size:13.5px; line-height:1.6; resize:none;}
+  .reflection-textarea:focus{outline:none; border-color:var(--accent);}
+  .reflection-submit{margin-top:8px; background:var(--accent); border:none; color:#1a1206; font-weight:700; font-size:13px; padding:9px 18px; border-radius:20px; cursor:pointer;}
+  .reflection-submit:disabled{opacity:0.4;}
+  .reflection-feedback{margin-top:10px; font-size:12.5px; color:var(--parch); line-height:1.6; background:rgba(255,255,255,0.04); padding:10px 12px; border-radius:10px;}
+
+  .teaser-text{font-size:13.5px; color:var(--parch); line-height:1.6; margin-bottom:10px;}
+  .teaser-option{display:block; width:100%; text-align:right; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); color:var(--parch); font-family:'Heebo',sans-serif; font-size:13px; padding:10px 12px; border-radius:12px; margin-bottom:8px; cursor:pointer;}
+  .teaser-option:last-child{margin-bottom:0;}
+  .teaser-option.correct{background:rgba(63,191,143,0.16); border-color:rgba(63,191,143,0.4);}
+  .teaser-option.wrong-pick{background:rgba(230,90,80,0.14); border-color:rgba(230,90,80,0.35);}
+  .teaser-reveal-banner{background:linear-gradient(120deg,#2a2418,#1c1a14); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:12px 14px; margin:0 20px 10px; font-size:12.5px; color:var(--parch); line-height:1.6;}
   .duel-board-row:last-child{border-bottom:none;}
   .duel-board-rank{color:#8891A0; font-weight:700; width:18px;}
   .duel-board-name{flex:1; font-weight:600;}
@@ -521,20 +563,29 @@
     loadChapterByParsed({ bookHe, bookSlug, chapter });
   }
 
-  function nextChapter(){
-    if(!currentParsed) return;
-    const idx = BOOK_ORDER.indexOf(currentParsed.bookHe);
-    if(idx === -1) return;
-    const maxCh = CHAPTER_COUNTS[currentParsed.bookHe] || currentParsed.chapter;
-    let nextBookHe = currentParsed.bookHe;
-    let nextCh = currentParsed.chapter + 1;
+  // Shared by nextChapter() and the interactive layer's "מה יקרה בפרק הבא"
+  // teaser, which needs to tell the backend exactly which chapter comes
+  // next so it can ground its hypotheses in the real next-chapter text.
+  function computeNextRef(parsed){
+    if(!parsed) return null;
+    const idx = BOOK_ORDER.indexOf(parsed.bookHe);
+    if(idx === -1) return null;
+    const maxCh = CHAPTER_COUNTS[parsed.bookHe] || parsed.chapter;
+    let nextBookHe = parsed.bookHe;
+    let nextCh = parsed.chapter + 1;
     if(nextCh > maxCh){
       const nextIdx = (idx + 1) % BOOK_ORDER.length; // wraps from Chronicles II back to Genesis
       nextBookHe = BOOK_ORDER[nextIdx];
       nextCh = 1;
     }
     const bookSlug = BOOK_MAP[nextBookHe];
-    loadChapterByParsed({ bookHe: nextBookHe, bookSlug, chapter: nextCh });
+    return { bookHe: nextBookHe, bookSlug, chapter: nextCh };
+  }
+
+  function nextChapter(){
+    const next = computeNextRef(currentParsed);
+    if(!next) return;
+    loadChapterByParsed(next);
   }
 
   let currentVerses = [];
@@ -546,7 +597,9 @@
     const heRef = data.heRef || (parsed.bookHe + ' ' + parsed.chapter);
     currentHeRef = heRef;
     const body = document.getElementById('resultBody');
+    const guessRevealHtml = buildNextGuessRevealHtml(parsed);
     body.innerHTML = `
+      ${guessRevealHtml}
       <div class="result-ref">${heRef}</div>
       <div class="result-sub">${verses.length} פסוקים · מתוך ספריא</div>
       <div class="listen-bar">
@@ -557,6 +610,7 @@
       <div class="voice-diag" id="voiceDiag"></div>
       <div class="ai-row" id="aiEnrichmentWrap"></div>
       <div class="verses" id="versesWrap"></div>
+      <div class="ir-wrap" id="interactiveWrap"></div>
       <button class="duel-entry-btn" onclick="openDuel()">
         <span class="duel-entry-icon"><svg viewBox="0 0 24 24" fill="none" width="20" height="20"><path d="M4 20L15 9M15 9l-2-2 2-2 4 4-2 2-2-2zM4 20l2-5 3 3-5 2z" stroke="#E9C77B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         <span class="duel-entry-text">
@@ -708,10 +762,16 @@
   }
   async function loadAIEnrichment(parsed, heRef){
     stopReel();
+    const irWrap = document.getElementById('interactiveWrap');
+    if(irWrap) irWrap.innerHTML = '';
     if(!AI_BACKEND_URL){ renderAIFallback(); return; }
     renderAISkeleton();
     try{
-      const url = `${AI_BACKEND_URL}/chapter-ai?book=${encodeURIComponent(parsed.bookSlug)}&chapter=${encodeURIComponent(parsed.chapter)}&heRef=${encodeURIComponent(heRef)}`;
+      const nextRef = computeNextRef(parsed);
+      let url = `${AI_BACKEND_URL}/chapter-ai?book=${encodeURIComponent(parsed.bookSlug)}&chapter=${encodeURIComponent(parsed.chapter)}&heRef=${encodeURIComponent(heRef)}`;
+      if(nextRef){
+        url += `&nextBook=${encodeURIComponent(nextRef.bookSlug)}&nextChapter=${encodeURIComponent(nextRef.chapter)}&nextHeRef=${encodeURIComponent(nextRef.bookHe + ' ' + nextRef.chapter)}`;
+      }
       const res = await fetch(url);
       if(!res.ok) throw new Error('backend error ' + res.status);
       const data = await res.json();
@@ -735,8 +795,275 @@
         </div>
       `;
       if(hasReel) renderReel(data.reel);
+      renderInteractiveLayer(data, parsed, heRef);
     } catch(err){
       renderAIFallback();
+    }
+  }
+
+  // ============================================================
+  // INTERACTIVE LEARNING LAYER — added 2026-07-27.
+  // Explicitly NOT gamification: no points, no streaks, no leaderboards, no
+  // fanfare on a correct answer. Four short (under a minute each) pieces
+  // shown after the chapter text, meant to make the reader pause and think,
+  // not to reward them — reinforcement only ("כך בדיוק התפתח הסיפור"), never
+  // a score. Reuses existing content wherever possible instead of asking
+  // for new AI generation: the reorder game reuses the story reel's own
+  // beats (their array order already IS the correct order), and the solo
+  // "תפסו את השקרן" reuses the existing /duel-claims cache — this is a
+  // separate, simpler, non-multiplayer flow from the room-code duel game
+  // reached via the "דו-קרב פייק-ניוז" button (both stay, on purpose).
+  // ============================================================
+
+  function buildNextGuessRevealHtml(parsed){
+    try{
+      const raw = localStorage.getItem('bf_next_guess');
+      if(!raw) return '';
+      const g = JSON.parse(raw);
+      if(!g || g.bookHe !== parsed.bookHe || g.chapter !== parsed.chapter) return '';
+      localStorage.removeItem('bf_next_guess');
+      const line = g.correct
+        ? `ניחשתם נכון: ${stripHtml(g.pickedText)}`
+        : `לא בדיוק — מה שבאמת קרה: ${stripHtml(g.correctText)}`;
+      return `<div class="teaser-reveal-banner">${line}</div>`;
+    }catch(e){ return ''; }
+  }
+
+  function renderInteractiveLayer(data, parsed, heRef){
+    const wrap = document.getElementById('interactiveWrap');
+    if(!wrap) return;
+    wrap.innerHTML = `
+      <div class="ir-card" id="irImpostorCard" style="display:none;">
+        <div class="ir-title">תפסו את השקרן</div>
+        <div class="ir-sub">3 אמיתיות, אחת שקרית. אילו מהן השקר?</div>
+        <div id="irImpostorBody"></div>
+      </div>
+      <div class="ir-card" id="irOrderCard" style="display:none;">
+        <div class="ir-title">סדרו את הסיפור</div>
+        <div class="ir-sub">לוחצים על התמונות לפי הסדר שבו הן קרו בפרק.</div>
+        <div id="irOrderBody"></div>
+      </div>
+      <div class="ir-card" id="irReflectCard" style="display:none;">
+        <div class="ir-title">רגע לחשוב</div>
+        <div class="teaser-text" id="irReflectQuestion"></div>
+        <textarea class="reflection-textarea" id="irReflectInput" placeholder="כתבו כאן במילים שלכם..."></textarea>
+        <button class="reflection-submit" id="irReflectBtn" onclick="submitReflection()">שלחו</button>
+        <div id="irReflectFeedback"></div>
+      </div>
+      <div class="ir-card" id="irTeaserCard" style="display:none;">
+        <div class="ir-title">מה יקרה בפרק הבא?</div>
+        <div class="teaser-text" id="irTeaserText"></div>
+        <div id="irTeaserOptions"></div>
+      </div>
+    `;
+    loadImpostorSolo(parsed, heRef);
+    if(Array.isArray(data.reel) && data.reel.length > 1) renderStoryOrderGame(data.reel);
+    if(data.reflection) renderReflectionCard(data.reflection, heRef);
+    if(data.nextTeaser) renderNextTeaserCard(data.nextTeaser, parsed);
+  }
+
+  // ---- 1. תפסו את השקרן (סולו, מיידי) ----
+  async function loadImpostorSolo(parsed, heRef){
+    if(!DUEL_BACKEND_URL || !parsed || !currentVerses.length) return;
+    try{
+      const res = await fetch(`${DUEL_BACKEND_URL}/duel-claims`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          book: parsed.bookSlug,
+          chapter: parsed.chapter,
+          heRef: heRef,
+          verses: currentVerses.map(v => stripHtml(v))
+        })
+      });
+      if(!res.ok) throw new Error('backend error ' + res.status);
+      const data = await res.json();
+      if(!Array.isArray(data.claims) || data.claims.length !== 4) return;
+      renderImpostorSolo(data.claims);
+    } catch(err){ /* honesty principle: just skip this card, no fake content */ }
+  }
+
+  function renderImpostorSolo(claims){
+    const card = document.getElementById('irImpostorCard');
+    const body = document.getElementById('irImpostorBody');
+    if(!card || !body) return;
+    const shuffled = claims.map((c,i)=>({...c, origIndex:i})).sort(()=>Math.random()-0.5);
+    let answered = false;
+    body.innerHTML = shuffled.map((c, i) =>
+      `<div class="impostor-option" data-idx="${i}" onclick="pickImpostor(${i})">${stripHtml(c.text)}</div>`
+    ).join('');
+    window._irClaims = shuffled;
+    card.style.display = 'block';
+  }
+
+  function pickImpostor(i){
+    if(window._irAnswered) return;
+    window._irAnswered = true;
+    const claims = window._irClaims || [];
+    const picked = claims[i];
+    const impostorIdx = claims.findIndex(c => c.isImpostor);
+    const opts = document.querySelectorAll('#irImpostorBody .impostor-option');
+    opts.forEach((el, idx) => {
+      if(idx === impostorIdx) el.classList.add('correct');
+      else if(idx === i && idx !== impostorIdx) el.classList.add('wrong-pick');
+      else el.classList.add('dim');
+    });
+    const impostorClaim = claims[impostorIdx];
+    const feedback = document.createElement('div');
+    feedback.className = 'impostor-feedback';
+    const verdict = (picked && picked.isImpostor) ? 'נכון. ' : 'לא בדיוק — השקר היה משפט אחר. ';
+    feedback.textContent = verdict + stripHtml((impostorClaim && impostorClaim.note) || '');
+    document.getElementById('irImpostorBody').appendChild(feedback);
+  }
+
+  // ---- 2. סדרו את הסיפור (תמונות רצף הסיפור, מעורבבות) ----
+  function renderStoryOrderGame(reel){
+    const card = document.getElementById('irOrderCard');
+    const body = document.getElementById('irOrderBody');
+    if(!card || !body) return;
+    const trueOrder = reel.map((b, i) => ({ ...b, origIndex: i }));
+    const shuffled = [...trueOrder].sort(() => Math.random() - 0.5);
+    const placed = new Array(trueOrder.length).fill(null); // slot -> shuffled index
+
+    function renderTray(){
+      return `<div class="order-tray" id="orderTray">${shuffled.map((b, i) => {
+        const isPlaced = placed.includes(i);
+        return `<div class="order-tile${isPlaced ? ' placed' : ''}" data-i="${i}" onclick="placeOrderTile(${i})">
+          ${b.imageUrl ? `<img src="${b.imageUrl}" alt="">` : `<div class="tile-ph">${(i+1)}</div>`}
+        </div>`;
+      }).join('')}</div>`;
+    }
+    function renderSlots(){
+      return `<div class="order-slots" id="orderSlots">${placed.map((slotVal, slotIdx) => {
+        if(slotVal === null){
+          return `<div class="order-slot" data-slot="${slotIdx}"><span class="order-slot-num">${slotIdx+1}</span><span class="order-slot-cap" style="color:var(--dim2);">לוחצים על תמונה למעלה</span></div>`;
+        }
+        const b = shuffled[slotVal];
+        return `<div class="order-slot filled" data-slot="${slotIdx}" onclick="unplaceOrderSlot(${slotIdx})">
+          <span class="order-slot-num">${slotIdx+1}</span>
+          <span class="order-slot-thumb">${b.imageUrl ? `<img src="${b.imageUrl}" alt="">` : ''}</span>
+          <span class="order-slot-cap">${stripHtml(b.caption || '')}</span>
+        </div>`;
+      }).join('')}</div><div class="order-result" id="orderResult"></div>`;
+    }
+
+    window._orderState = { shuffled, placed, trueOrder };
+
+    window.placeOrderTile = function(shuffledIdx){
+      const st = window._orderState;
+      if(st.placed.includes(shuffledIdx)) return; // already placed
+      const emptySlot = st.placed.indexOf(null);
+      if(emptySlot === -1) return;
+      st.placed[emptySlot] = shuffledIdx;
+      redraw();
+      if(!st.placed.includes(null)) revealOrderResult();
+    };
+    window.unplaceOrderSlot = function(slotIdx){
+      const st = window._orderState;
+      if(st.placed[slotIdx] === null) return;
+      st.placed[slotIdx] = null;
+      document.getElementById('orderResult').innerHTML = '';
+      redraw();
+    };
+    function redraw(){
+      body.innerHTML = renderTray() + renderSlots();
+    }
+    function revealOrderResult(){
+      const st = window._orderState;
+      let correctCount = 0;
+      st.placed.forEach((shuffledIdx, slotIdx) => {
+        if(st.shuffled[shuffledIdx].origIndex === slotIdx) correctCount++;
+      });
+      document.querySelectorAll('#orderSlots .order-slot').forEach((el, slotIdx) => {
+        const shuffledIdx = st.placed[slotIdx];
+        if(shuffledIdx !== null && st.shuffled[shuffledIdx].origIndex === slotIdx) el.classList.add('correct-pos');
+      });
+      const resultEl = document.getElementById('orderResult');
+      if(resultEl){
+        resultEl.textContent = correctCount === st.placed.length
+          ? 'כך בדיוק התפתח הסיפור.'
+          : 'כך בדיוק התפתח הסיפור — הסדר הנכון מסומן למעלה.';
+      }
+    }
+
+    redraw();
+    card.style.display = 'block';
+  }
+
+  // ---- 3. שאלת AI פתוחה ----
+  function renderReflectionCard(question, heRef){
+    const card = document.getElementById('irReflectCard');
+    const qEl = document.getElementById('irReflectQuestion');
+    if(!card || !qEl) return;
+    qEl.textContent = question;
+    window._irReflectHeRef = heRef;
+    window._irReflectQuestion = question;
+    card.style.display = 'block';
+  }
+
+  async function submitReflection(){
+    const input = document.getElementById('irReflectInput');
+    const btn = document.getElementById('irReflectBtn');
+    const feedbackEl = document.getElementById('irReflectFeedback');
+    const answer = (input && input.value || '').trim();
+    if(!answer || !DUEL_BACKEND_URL) return;
+    btn.disabled = true;
+    btn.textContent = 'רגע...';
+    try{
+      const res = await fetch(`${DUEL_BACKEND_URL}/reflection-feedback`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ heRef: window._irReflectHeRef, question: window._irReflectQuestion, answer })
+      });
+      if(!res.ok) throw new Error('backend error ' + res.status);
+      const data = await res.json();
+      feedbackEl.innerHTML = `<div class="reflection-feedback">${stripHtml(data.feedback || '')}</div>`;
+      btn.style.display = 'none';
+      input.disabled = true;
+    } catch(err){
+      btn.disabled = false;
+      btn.textContent = 'שלחו';
+    }
+  }
+
+  // ---- 4. מה יקרה בפרק הבא? ----
+  function renderNextTeaserCard(teaser, parsed){
+    const card = document.getElementById('irTeaserCard');
+    const textEl = document.getElementById('irTeaserText');
+    const optsEl = document.getElementById('irTeaserOptions');
+    if(!card || !textEl || !optsEl) return;
+    textEl.textContent = teaser.teaser;
+    const next = computeNextRef(parsed);
+    optsEl.innerHTML = teaser.options.map((o, i) =>
+      `<button class="teaser-option" data-i="${i}" onclick="pickTeaserOption(${i})">${stripHtml(o.text)}</button>`
+    ).join('');
+    window._irTeaser = teaser;
+    window._irTeaserNextRef = next;
+    card.style.display = 'block';
+  }
+
+  function pickTeaserOption(i){
+    if(window._irTeaserAnswered) return;
+    window._irTeaserAnswered = true;
+    const teaser = window._irTeaser;
+    const next = window._irTeaserNextRef;
+    const opts = document.querySelectorAll('#irTeaserOptions .teaser-option');
+    const picked = teaser.options[i];
+    const correctOpt = teaser.options.find(o => o.correct);
+    opts.forEach((el, idx) => {
+      if(teaser.options[idx].correct) el.classList.add('correct');
+      else if(idx === i) el.classList.add('wrong-pick');
+    });
+    if(next){
+      try{
+        localStorage.setItem('bf_next_guess', JSON.stringify({
+          bookHe: next.bookHe,
+          chapter: next.chapter,
+          correct: !!(picked && picked.correct),
+          pickedText: (picked && picked.text) || '',
+          correctText: (correctOpt && correctOpt.text) || ''
+        }));
+      }catch(e){}
     }
   }
 
