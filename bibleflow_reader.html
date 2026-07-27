@@ -110,7 +110,11 @@
     animation:pulse 1s ease-in-out infinite;}
   @keyframes pulse{0%,100%{opacity:0.3; transform:scale(0.8);} 50%{opacity:1; transform:scale(1.15);}}
 
-  .verses{display:flex; flex-direction:column; gap:18px; margin-bottom:22px; background:var(--card); border-radius:16px; padding:20px 18px;}
+  .verses{display:flex; flex-direction:column; gap:18px; background:var(--card); border-radius:16px; padding:20px 18px; position:relative; overflow:hidden; transition:max-height .3s ease;}
+  .verses.collapsed{max-height:200px;}
+  .verses-fade{position:absolute; left:0; right:0; bottom:0; height:70px; border-radius:0 0 16px 16px; background:linear-gradient(to bottom, transparent, var(--card)); pointer-events:none; display:none;}
+  .verses.collapsed .verses-fade{display:block;}
+  .verses-toggle{display:flex; align-items:center; justify-content:center; gap:6px; width:100%; text-align:center; background:none; border:none; color:var(--accent); font-family:'Heebo',sans-serif; font-weight:700; font-size:13px; padding:10px 0; margin-bottom:22px; margin-top:-6px; cursor:pointer;}
   .verse{font-family:'Noto Serif Hebrew',serif; font-size:19px; line-height:2.3; opacity:0; transform:translateY(6px); animation:vin .5s ease forwards;}
   .verse .vnum{color:var(--accent); font-family:'Heebo',sans-serif; font-size:11px; font-weight:800; margin-inline-end:8px; vertical-align:middle;}
   @keyframes vin{to{opacity:1; transform:translateY(0);}}
@@ -139,6 +143,8 @@
   .soon-badge{font-size:9px; letter-spacing:0.3px; color:#0e0e11; background:var(--parch); opacity:0.8; padding:2px 7px; border-radius:20px; font-weight:800;}
   .ai-card-image{width:100%; height:150px; object-fit:cover; border-radius:12px; margin-bottom:10px; display:block;}
   .ai-card-text{font-size:14.5px; color:var(--parch); line-height:1.85;}
+  .ai-card-text.collapsed{display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden;}
+  .text-toggle-btn{display:block; margin-top:8px; background:none; border:none; color:var(--accent); font-family:'Heebo',sans-serif; font-weight:700; font-size:12px; cursor:pointer; padding:0;}
 
   /* ============ STORY REEL (image sequence + captions) ============ */
   .reel-wrap{position:relative; width:100%; aspect-ratio:4/3; background:#111116; border-radius:14px; overflow:hidden; cursor:pointer;}
@@ -609,8 +615,12 @@
       </div>
       <div class="voice-diag" id="voiceDiag"></div>
       <div class="ai-row" id="aiEnrichmentWrap"></div>
-      <div class="verses" id="versesWrap"></div>
       <div class="ir-wrap" id="interactiveWrap"></div>
+      <div class="verses collapsed" id="versesWrap"></div>
+      <button class="verses-toggle" id="versesToggleBtn" onclick="toggleVerses()">
+        <span id="versesToggleLabel">הצג את כל הפרק</span>
+        <span id="versesToggleIcon">+</span>
+      </button>
       <button class="duel-entry-btn" onclick="openDuel()">
         <span class="duel-entry-icon"><svg viewBox="0 0 24 24" fill="none" width="20" height="20"><path d="M4 20L15 9M15 9l-2-2 2-2 4 4-2 2-2-2zM4 20l2-5 3 3-5 2z" stroke="#E9C77B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         <span class="duel-entry-text">
@@ -631,8 +641,34 @@
       el.innerHTML = `<span class="vnum">${i+1}</span>${stripHtml(v)}`;
       wrap.appendChild(el);
     });
+    wrap.insertAdjacentHTML('beforeend', '<div class="verses-fade" id="versesFade"></div>');
     renderVoiceDiag();
     loadAIEnrichment(parsed, heRef);
+  }
+
+  // Collapsed by default (a short preview, ~3-4 lines) so the interactive
+  // layer above it — and the "games" it leads to — is visible on screen
+  // without scrolling through the entire chapter first. Tapping "+" reveals
+  // the full text; the biblical text itself is never hidden permanently,
+  // just not forced on-screen before the reader has chosen to read it.
+  function toggleVerses(){
+    const wrap = document.getElementById('versesWrap');
+    const label = document.getElementById('versesToggleLabel');
+    const icon = document.getElementById('versesToggleIcon');
+    if(!wrap || !label || !icon) return;
+    const isNowCollapsed = wrap.classList.toggle('collapsed');
+    label.textContent = isNowCollapsed ? 'הצג את כל הפרק' : 'הצג פחות';
+    icon.textContent = isNowCollapsed ? '+' : '−';
+  }
+
+  function toggleExplanation(){
+    const el = document.getElementById('explanationText');
+    const label = document.getElementById('explanationToggleLabel');
+    const icon = document.getElementById('explanationToggleIcon');
+    if(!el || !label || !icon) return;
+    const isNowCollapsed = el.classList.toggle('collapsed');
+    label.textContent = isNowCollapsed ? 'הצג עוד' : 'הצג פחות';
+    icon.textContent = isNowCollapsed ? '+' : '−';
   }
 
   // ===== AI enrichment (explanation + illustration) =====
@@ -781,9 +817,10 @@
       wrap.innerHTML = `
         <div class="ai-card">
           <div class="ai-card-icon">${aiIconExplain()}</div>
-          <div>
+          <div style="width:100%">
             <div class="ai-card-title">הסבר בשפה פשוטה</div>
-            <div class="ai-card-text">${data.explanation ? stripHtml(data.explanation) : 'לא התקבל הסבר כרגע.'}</div>
+            <div class="ai-card-text${data.explanation ? ' collapsed' : ''}" id="explanationText">${data.explanation ? stripHtml(data.explanation) : 'לא התקבל הסבר כרגע.'}</div>
+            ${data.explanation ? `<button class="text-toggle-btn" id="explanationToggleBtn" onclick="toggleExplanation()"><span id="explanationToggleLabel">הצג עוד</span> <span id="explanationToggleIcon">+</span></button>` : ''}
           </div>
         </div>
         <div class="ai-card">
