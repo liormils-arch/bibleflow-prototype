@@ -29,7 +29,14 @@
   body{font-family:'Heebo',sans-serif; color:var(--parch); display:flex; flex-direction:column; align-items:center; padding:24px 10px; gap:12px;}
   .hint{font-size:11px; color:#888; text-align:center; max-width:420px; line-height:1.7;}
 
-  .device{width:390px; max-width:100%; min-height:812px; position:relative; overflow:hidden; border-radius:26px;
+  /* width was a fixed 390px — a leftover from an early desktop "phone mockup"
+     preview. max-width:100% only kicks in once the viewport is NARROWER than
+     the declared width, so any real phone wider than 390 logical px (iPhone
+     14/15/16 at 393-430, Pro Max models, etc.) left empty margin on both
+     sides instead of filling the screen. Raising the base width past the
+     widest real phone viewport means max-width:100% always wins on mobile
+     (full-bleed), while desktop browsers still get a nice centered card. */
+  .device{width:520px; max-width:100%; min-height:812px; position:relative; overflow:hidden; border-radius:26px;
     background:#0e0e11; box-shadow:0 10px 30px rgba(0,0,0,0.45);
     display:flex; flex-direction:column;}
 
@@ -614,13 +621,13 @@
         <div class="listen-bars" id="listenBars"><span></span><span></span><span></span><span></span></div>
       </div>
       <div class="voice-diag" id="voiceDiag"></div>
-      <div class="ai-row" id="aiEnrichmentWrap"></div>
-      <div class="ir-wrap" id="interactiveWrap"></div>
       <div class="verses collapsed" id="versesWrap"></div>
       <button class="verses-toggle" id="versesToggleBtn" onclick="toggleVerses()">
         <span id="versesToggleLabel">הצג את כל הפרק</span>
         <span id="versesToggleIcon">+</span>
       </button>
+      <div class="ai-row" id="aiEnrichmentWrap"></div>
+      <div class="ir-wrap" id="interactiveWrap"></div>
       <button class="duel-entry-btn" onclick="openDuel()">
         <span class="duel-entry-icon"><svg viewBox="0 0 24 24" fill="none" width="20" height="20"><path d="M4 20L15 9M15 9l-2-2 2-2 4 4-2 2-2-2zM4 20l2-5 3 3-5 2z" stroke="#E9C77B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         <span class="duel-entry-text">
